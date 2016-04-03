@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -242,39 +243,58 @@ public class PictureFragment extends Fragment {
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             View view = convertView;
-            final ViewHolder holder;
+            final CardPictureViewHolder card_picture_holder;
             if (convertView == null) {
                 view = inflater.inflate(R.layout.card_picture, parent, false);
-                holder = new ViewHolder();
-                holder.description = (TextView) view.findViewById(R.id.description);
-                holder.image = (ImageView) view.findViewById(R.id.image);
-                holder.likes = (TextView) view.findViewById(R.id.likes);
-                holder.activity = (TextView) view.findViewById(R.id.activity);
-                holder.location = (TextView) view.findViewById(R.id.location);
-                view.setTag(holder);
+                card_picture_holder = new CardPictureViewHolder();
+                card_picture_holder.uploader = new BarUploaderViewHolder();
+                card_picture_holder.description = (TextView) view.findViewById(R.id.description);
+                card_picture_holder.image = (ImageView) view.findViewById(R.id.image);
+                card_picture_holder.like_button = (Button) view.findViewById(R.id.like_button);
+                card_picture_holder.add_to_bl_button = (Button) view.findViewById(R.id.add_to_bl_button);
+                card_picture_holder.likes = (TextView) view.findViewById(R.id.likes);
+                card_picture_holder.activity = (TextView) view.findViewById(R.id.activity);
+                card_picture_holder.location = (TextView) view.findViewById(R.id.location);
+                card_picture_holder.uploader.name = (TextView) view.findViewById(R.id.name);
+                card_picture_holder.uploader.pp = (ImageView) view.findViewById(R.id.pp);
+
+                view.setTag(card_picture_holder);
             } else {
-                holder = (ViewHolder) view.getTag();
+                card_picture_holder = (CardPictureViewHolder) view.getTag();
             }
 
             //Place Holders
-            holder.description.setText("Description");
-            holder.likes.setText("30 Likes");
-            holder.activity.setText("Some activity");
-            holder.location.setText("Some Location");
+            card_picture_holder.description.setText("Description");
+            card_picture_holder.like_button.setText("Like");
+            card_picture_holder.add_to_bl_button.setText("Bucket");
+            card_picture_holder.likes.setText("30 Likes");
+            card_picture_holder.activity.setText("Some activity");
+            card_picture_holder.location.setText("Some Location");
+            card_picture_holder.uploader.name.setText("Hassan");
+            card_picture_holder.uploader.pp.setBackgroundColor(0xFF00FF00);
 
-            ImageLoader.getInstance().displayImage(imageUrls.get(position), holder.image, options, animateFirstListener);
+            ImageLoader.getInstance().displayImage(imageUrls.get(position), card_picture_holder.image, options, animateFirstListener);
 
             return view;
         }
     }
 
-    static class ViewHolder {
+    static class CardPictureViewHolder {
         TextView description;
         ImageView image;
+        Button like_button;
+        Button add_to_bl_button;
         TextView likes;
         TextView activity;
         TextView location;
+        BarUploaderViewHolder uploader;
     }
+
+    static class BarUploaderViewHolder {
+        TextView name;
+        ImageView pp;
+    }
+
 
     private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
         //Stub

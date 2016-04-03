@@ -8,15 +8,12 @@
     <ImageView
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:id="@+id/user_pp"
-        android:background="#020f00"
-        android:src="@android:drawable/ic_menu_more"/>
+        android:id="@+id/pp" />
 
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Name"
         android:id="@+id/name" />
 
 
