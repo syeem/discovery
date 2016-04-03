@@ -199,7 +199,7 @@ public class PictureFragment extends Fragment {
             @Override
             public boolean onLoadMore(int page, int totalItemsCount) {
                 requestPictures();
-                return false;
+                return true;
             }
         });
 
