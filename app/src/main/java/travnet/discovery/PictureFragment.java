@@ -5,10 +5,13 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -63,6 +66,7 @@ public class PictureFragment extends Fragment {
     static ArrayList<String> imageUrls;
     LinearLayout layout;
     ListView listView;
+    Toolbar toolbar;
     //Universal Image Loader variables
     ImageLoader imageLoader;
     DisplayImageOptions options;
@@ -117,6 +121,9 @@ public class PictureFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_picture, container, false);
         listView = (ListView) view.findViewById(R.id.list);
+        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        toolbar.inflateMenu(R.menu.menu_navigation);
+
 
         return view;
     }
@@ -207,6 +214,20 @@ public class PictureFragment extends Fragment {
                 requestPictures();
                 return true;
             }
+
+            @Override
+            public void showToolbar(boolean show) {
+                if (show == true) {
+                    toolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
+                    //toolbar.setVisibility(View.VISIBLE);
+                }
+                if (show == false) {
+                    toolbar.animate().translationY(toolbar.getBottom()).setInterpolator(new AccelerateInterpolator()).start();
+                    //toolbar.setVisibility(View.GONE);
+                }
+            }
+
+
         });
 
     }
@@ -327,6 +348,7 @@ public class PictureFragment extends Fragment {
         private boolean loading = true;
         private int startingPageIndex = 0;
 
+
         public EndlessScrollListener() {
         }
 
@@ -358,9 +380,16 @@ public class PictureFragment extends Fragment {
         // Returns true if more data is being loaded; returns false if there is no more data to load.
         public abstract boolean onLoadMore(int page, int totalItemsCount);
 
+        public abstract void showToolbar(boolean show);
+
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
             // Don't take any action on changed
+            if (scrollState == SCROLL_STATE_TOUCH_SCROLL)
+                showToolbar(false);
+            if (scrollState == SCROLL_STATE_IDLE)
+                showToolbar(true);
+
         }
     }
 
