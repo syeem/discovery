@@ -5,6 +5,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -65,7 +67,8 @@ public class PictureFragment extends Fragment {
     //View handlers
     static ArrayList<String> imageUrls;
     LinearLayout layout;
-    ListView listView;
+    RecyclerView recyclerView;
+    LinearLayoutManager mLayoutManager;
     //Universal Image Loader variables
     ImageLoader imageLoader;
     DisplayImageOptions options;
@@ -119,7 +122,7 @@ public class PictureFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_picture, container, false);
-        listView = (ListView) view.findViewById(R.id.list);
+        recyclerView = (RecyclerView) view.findViewById(R.id.list);
 
         return view;
     }
@@ -204,9 +207,14 @@ public class PictureFragment extends Fragment {
 
     //Function to initialze the listView with  the adapter and the infinite scroll listener
     private void initializeListView () {
-        ((ListView) listView).setAdapter(new ImageAdapter(getActivity()));
 
-        listView.setOnScrollListener(new EndlessScrollListener() {
+        mLayoutManager = new LinearLayoutManager(getContext());
+        mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView.setLayoutManager(mLayoutManager);
+
+        ((RecyclerView) recyclerView).setAdapter(new ImageAdapter(getActivity()));
+
+        /*listView.setOnScrollListener(new EndlessScrollListener() {
             @Override
             public boolean onLoadMore(int page, int totalItemsCount) {
                 requestPictures();
@@ -224,13 +232,16 @@ public class PictureFragment extends Fragment {
             }
 
 
-        });
+        });*/
 
     }
 
 
+
+
+
     //Adapter to populate listView with picture cards
-    private static class ImageAdapter extends BaseAdapter {
+    private static class ImageAdapter extends RecyclerView.Adapter <RecyclerView.ViewHolder>{
 
         private static final int TYPE_PICTURE = 0;
         private static final int TYPE_BLOG = 1;
@@ -238,6 +249,58 @@ public class PictureFragment extends Fragment {
         private LayoutInflater inflater;
         private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
         private DisplayImageOptions options;
+
+
+        public static class CardPictureViewHolder extends RecyclerView.ViewHolder {
+            TextView description;
+            ImageView image;
+            Button like_button;
+            Button add_to_bl_button;
+            TextView likes;
+            TextView activity;
+            TextView location;
+            BarUploaderViewHolder uploader;
+            public CardPictureViewHolder(View itemView) {
+                super(itemView);
+                uploader = new BarUploaderViewHolder ();
+                description = (TextView) itemView.findViewById(R.id.description);
+                image = (ImageView) itemView.findViewById(R.id.image);
+                like_button = (Button) itemView.findViewById(R.id.like_button);
+                add_to_bl_button = (Button) itemView.findViewById(R.id.add_to_bl_button);
+                likes = (TextView) itemView.findViewById(R.id.likes);
+                activity = (TextView) itemView.findViewById(R.id.activity);
+                location = (TextView) itemView.findViewById(R.id.location);
+                uploader.name = (TextView) itemView.findViewById(R.id.name);
+                uploader.pp = (ImageView) itemView.findViewById(R.id.pp);
+
+            }
+        }
+
+
+        public static class CardBlogViewHolder extends RecyclerView.ViewHolder {
+            ImageView thumbnail;
+            TextView title;
+            TextView extract;
+            TextView likes;
+            TextView activity;
+            TextView location;
+            BarUploaderViewHolder uploader;
+            public CardBlogViewHolder(View itemView) {
+                super(itemView);
+                uploader = new BarUploaderViewHolder ();
+                thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
+                title = (TextView) itemView.findViewById(R.id.title);
+                extract = (TextView) itemView.findViewById(R.id.extract);
+                likes = (TextView) itemView.findViewById(R.id.likes);
+                activity = (TextView) itemView.findViewById(R.id.activity);
+                location = (TextView) itemView.findViewById(R.id.location);
+                uploader.name = (TextView) itemView.findViewById(R.id.name);
+                uploader.pp = (ImageView) itemView.findViewById(R.id.pp);
+
+            }
+        }
+
+
 
         ImageAdapter(Context context) {
             inflater = LayoutInflater.from(context);
@@ -251,140 +314,81 @@ public class PictureFragment extends Fragment {
         }
 
         @Override
-        public int getCount() {
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public int getItemCount() {
             return imageUrls.size();
         }
 
         @Override
-        public Object getItem(int position) {
-            return position;
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view;
+            switch(viewType) {
+                case TYPE_PICTURE:
+                    view = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.card_picture, parent, false);
+                    CardPictureViewHolder cardPictureViewHolder = new CardPictureViewHolder(view);
+                    return cardPictureViewHolder;
+
+                case TYPE_BLOG:
+                    view = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.card_blog, parent, false);
+                    CardBlogViewHolder cardBlogViewHolder = new CardBlogViewHolder(view);
+                    return cardBlogViewHolder;
+
+                default:
+                    return null;
+            }
+
         }
 
         @Override
-        public long getItemId(int position) {
-            return position;
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            switch (holder.getItemViewType()) {
+
+                case TYPE_PICTURE:
+                    CardPictureViewHolder cardPictureViewHolder = (CardPictureViewHolder) holder;
+                    cardPictureViewHolder.description.setText("Description");
+                    cardPictureViewHolder.like_button.setText("Like");
+                    cardPictureViewHolder.add_to_bl_button.setText("Bucket");
+                    cardPictureViewHolder.likes.setText("30 Likes");
+                    cardPictureViewHolder.activity.setText("Some activity");
+                    cardPictureViewHolder.location.setText("Some Location");
+                    ImageLoader.getInstance().displayImage(imageUrls.get(position), cardPictureViewHolder.image, options, animateFirstListener);
+                    cardPictureViewHolder.uploader.name.setText("Hassan");
+                    cardPictureViewHolder.uploader.pp.setBackgroundColor(0xFF00FF00);
+                    break;
+
+                case TYPE_BLOG:
+                    CardBlogViewHolder cardBlogViewHolder = (CardBlogViewHolder) holder;
+                    cardBlogViewHolder.thumbnail.setImageResource(R.drawable.ic_add_to_bl);
+                    cardBlogViewHolder.title.setText("A Very JUCY Road Trip! Part III: Antelope Canyon");
+                    cardBlogViewHolder.extract.setText("You’d be pretty hard pressed to find a traveler who hadn’t heard of The Grand Canyon. But what of the...");
+                    cardBlogViewHolder.likes.setText("30 Likes");
+                    cardBlogViewHolder.activity.setText("Some activity");
+                    cardBlogViewHolder.location.setText("Some Location");
+                    cardBlogViewHolder.uploader.name.setText("Hassan");
+                    cardBlogViewHolder.uploader.pp.setBackgroundColor(0xFF00FF00);
+            }
         }
+
 
         @Override
         public int getItemViewType(int position) {
             return TYPE_PICTURE;
         }
 
-        @Override
-        public int getViewTypeCount() {
-            return 2;
-        }
 
-        @Override
-        public View getView(final int position, View convertView, ViewGroup parent) {
-            View view = convertView;
-            int viewType = this.getItemViewType(position);
 
-            switch(viewType) {
-
-                case TYPE_PICTURE:
-
-                    final CardPictureViewHolder card_picture_holder;
-                    if (convertView == null) {
-                        view = inflater.inflate(R.layout.card_picture, parent, false);
-                        card_picture_holder = new CardPictureViewHolder();
-                        card_picture_holder.uploader = new BarUploaderViewHolder();
-                        card_picture_holder.description = (TextView) view.findViewById(R.id.description);
-                        card_picture_holder.image = (ImageView) view.findViewById(R.id.image);
-                        card_picture_holder.like_button = (Button) view.findViewById(R.id.like_button);
-                        card_picture_holder.add_to_bl_button = (Button) view.findViewById(R.id.add_to_bl_button);
-                        card_picture_holder.likes = (TextView) view.findViewById(R.id.likes);
-                        card_picture_holder.activity = (TextView) view.findViewById(R.id.activity);
-                        card_picture_holder.location = (TextView) view.findViewById(R.id.location);
-                        card_picture_holder.uploader.name = (TextView) view.findViewById(R.id.name);
-                        card_picture_holder.uploader.pp = (ImageView) view.findViewById(R.id.pp);
-
-                        view.setTag(card_picture_holder);
-                    } else {
-                        card_picture_holder = (CardPictureViewHolder) view.getTag();
-                    }
-
-                    //Place Holders
-                    card_picture_holder.description.setText("Description");
-                    card_picture_holder.like_button.setText("Like");
-                    card_picture_holder.add_to_bl_button.setText("Bucket");
-                    card_picture_holder.likes.setText("30 Likes");
-                    card_picture_holder.activity.setText("Some activity");
-                    card_picture_holder.location.setText("Some Location");
-                    card_picture_holder.uploader.name.setText("Hassan");
-                    card_picture_holder.uploader.pp.setBackgroundColor(0xFF00FF00);
-
-                    ImageLoader.getInstance().displayImage(imageUrls.get(position), card_picture_holder.image, options, animateFirstListener);
-                    break;
-
-                case TYPE_BLOG:
-
-                    final CardBlogViewHolder card_blog_holder;
-                    if (convertView == null) {
-                        view = inflater.inflate(R.layout.card_blog, parent, false);
-                        card_blog_holder = new CardBlogViewHolder();
-                        card_blog_holder.uploader = new BarUploaderViewHolder();
-                        card_blog_holder.thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
-                        card_blog_holder.title = (TextView) view.findViewById(R.id.title);
-                        card_blog_holder.extract = (TextView) view.findViewById(R.id.extract);
-                        card_blog_holder.likes = (TextView) view.findViewById(R.id.likes);
-                        card_blog_holder.activity = (TextView) view.findViewById(R.id.activity);
-                        card_blog_holder.location = (TextView) view.findViewById(R.id.location);
-                        card_blog_holder.uploader.name = (TextView) view.findViewById(R.id.name);
-                        card_blog_holder.uploader.pp = (ImageView) view.findViewById(R.id.pp);
-
-                        view.setTag(card_blog_holder);
-                    } else {
-                        card_blog_holder = (CardBlogViewHolder) view.getTag();
-                    }
-
-                    //Place Holders
-                    card_blog_holder.thumbnail.setImageResource(R.drawable.ic_add_to_bl);
-                    card_blog_holder.title.setText("A Very JUCY Road Trip! Part III: Antelope Canyon");
-                    card_blog_holder.extract.setText("You’d be pretty hard pressed to find a traveler who hadn’t heard of The Grand Canyon. But what of the...");
-                    card_blog_holder.likes.setText("30 Likes");
-                    card_blog_holder.activity.setText("Some activity");
-                    card_blog_holder.location.setText("Some Location");
-                    card_blog_holder.uploader.name.setText("Hassan");
-                    card_blog_holder.uploader.pp.setBackgroundColor(0xFF00FF00);
-
-                    break;
-
-                default:
-
-            }
-
-            return view;
-
-        }
-    }
-
-    static class CardPictureViewHolder {
-        TextView description;
-        ImageView image;
-        Button like_button;
-        Button add_to_bl_button;
-        TextView likes;
-        TextView activity;
-        TextView location;
-        BarUploaderViewHolder uploader;
     }
 
     static class BarUploaderViewHolder {
         TextView name;
         ImageView pp;
     }
-
-    static class CardBlogViewHolder {
-        ImageView thumbnail;
-        TextView title;
-        TextView extract;
-        TextView likes;
-        TextView activity;
-        TextView location;
-        BarUploaderViewHolder uploader;
-    }
-
 
 
 
@@ -407,7 +411,7 @@ public class PictureFragment extends Fragment {
 
 
     //Scroll listener to load more cards when scrolling nears end
-    public abstract class EndlessScrollListener implements ListView.OnScrollListener {
+    public abstract class EndlessScrollListener extends RecyclerView.OnScrollListener {
         private int visibleThreshold = LOADING_THRESHOLD;
         private int currentPage = 0;
         private int previousTotalItemCount = 0;
@@ -422,7 +426,7 @@ public class PictureFragment extends Fragment {
             this.visibleThreshold = visibleThreshold;
         }
 
-        @Override
+       /* @Override
         public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
         {
             // If it's still loading, we check to see if the dataset count has
@@ -440,7 +444,7 @@ public class PictureFragment extends Fragment {
             if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
                 loading = onLoadMore(currentPage + 1, totalItemCount);
             }
-        }
+        }*/
 
         // Defines the process for actually loading more data based on page
         // Returns true if more data is being loaded; returns false if there is no more data to load.
@@ -450,11 +454,10 @@ public class PictureFragment extends Fragment {
         public abstract void onScrollStop();
 
         @Override
-        public void onScrollStateChanged(AbsListView view, int scrollState) {
-            // Don't take any action on changed
-            if (scrollState == SCROLL_STATE_TOUCH_SCROLL)
+        public void onScrollStateChanged (RecyclerView recyclerView, int newState) {
+            if (newState == SCROLL_STATE_DRAGGING)
                 onScrollStart();
-            if (scrollState == SCROLL_STATE_IDLE)
+            if (newState == SCROLL_STATE_IDLE)
                 onScrollStop();
 
         }
