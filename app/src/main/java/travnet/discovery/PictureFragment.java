@@ -66,7 +66,6 @@ public class PictureFragment extends Fragment {
     static ArrayList<String> imageUrls;
     LinearLayout layout;
     ListView listView;
-    Toolbar toolbar;
     //Universal Image Loader variables
     ImageLoader imageLoader;
     DisplayImageOptions options;
@@ -121,9 +120,6 @@ public class PictureFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_picture, container, false);
         listView = (ListView) view.findViewById(R.id.list);
-        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
-        toolbar.inflateMenu(R.menu.menu_navigation);
-
 
         return view;
     }
@@ -164,6 +160,8 @@ public class PictureFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
+        void  onListViewScrollStart();
+        void  onListViewScrollStop();
         void onFragmentInteraction(Uri uri);
     }
 
@@ -216,15 +214,13 @@ public class PictureFragment extends Fragment {
             }
 
             @Override
-            public void showToolbar(boolean show) {
-                if (show == true) {
-                    toolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
-                    //toolbar.setVisibility(View.VISIBLE);
-                }
-                if (show == false) {
-                    toolbar.animate().translationY(toolbar.getBottom()).setInterpolator(new AccelerateInterpolator()).start();
-                    //toolbar.setVisibility(View.GONE);
-                }
+            public void onScrollStart() {
+                mListener.onListViewScrollStart();
+            }
+
+            @Override
+            public void onScrollStop() {
+                mListener.onListViewScrollStop();
             }
 
 
@@ -380,15 +376,16 @@ public class PictureFragment extends Fragment {
         // Returns true if more data is being loaded; returns false if there is no more data to load.
         public abstract boolean onLoadMore(int page, int totalItemsCount);
 
-        public abstract void showToolbar(boolean show);
+        public abstract void onScrollStart();
+        public abstract void onScrollStop();
 
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
             // Don't take any action on changed
             if (scrollState == SCROLL_STATE_TOUCH_SCROLL)
-                showToolbar(false);
+                onScrollStart();
             if (scrollState == SCROLL_STATE_IDLE)
-                showToolbar(true);
+                onScrollStop();
 
         }
     }
