@@ -232,6 +232,9 @@ public class PictureFragment extends Fragment {
     //Adapter to populate listView with picture cards
     private static class ImageAdapter extends BaseAdapter {
 
+        private static final int TYPE_PICTURE = 0;
+        private static final int TYPE_BLOG = 1;
+
         private LayoutInflater inflater;
         private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
         private DisplayImageOptions options;
@@ -263,41 +266,96 @@ public class PictureFragment extends Fragment {
         }
 
         @Override
+        public int getItemViewType(int position) {
+            return TYPE_PICTURE;
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return 2;
+        }
+
+        @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             View view = convertView;
-            final CardPictureViewHolder card_picture_holder;
-            if (convertView == null) {
-                view = inflater.inflate(R.layout.card_picture, parent, false);
-                card_picture_holder = new CardPictureViewHolder();
-                card_picture_holder.uploader = new BarUploaderViewHolder();
-                card_picture_holder.description = (TextView) view.findViewById(R.id.description);
-                card_picture_holder.image = (ImageView) view.findViewById(R.id.image);
-                card_picture_holder.like_button = (Button) view.findViewById(R.id.like_button);
-                card_picture_holder.add_to_bl_button = (Button) view.findViewById(R.id.add_to_bl_button);
-                card_picture_holder.likes = (TextView) view.findViewById(R.id.likes);
-                card_picture_holder.activity = (TextView) view.findViewById(R.id.activity);
-                card_picture_holder.location = (TextView) view.findViewById(R.id.location);
-                card_picture_holder.uploader.name = (TextView) view.findViewById(R.id.name);
-                card_picture_holder.uploader.pp = (ImageView) view.findViewById(R.id.pp);
+            int viewType = this.getItemViewType(position);
 
-                view.setTag(card_picture_holder);
-            } else {
-                card_picture_holder = (CardPictureViewHolder) view.getTag();
+            switch(viewType) {
+
+                case TYPE_PICTURE:
+
+                    final CardPictureViewHolder card_picture_holder;
+                    if (convertView == null) {
+                        view = inflater.inflate(R.layout.card_picture, parent, false);
+                        card_picture_holder = new CardPictureViewHolder();
+                        card_picture_holder.uploader = new BarUploaderViewHolder();
+                        card_picture_holder.description = (TextView) view.findViewById(R.id.description);
+                        card_picture_holder.image = (ImageView) view.findViewById(R.id.image);
+                        card_picture_holder.like_button = (Button) view.findViewById(R.id.like_button);
+                        card_picture_holder.add_to_bl_button = (Button) view.findViewById(R.id.add_to_bl_button);
+                        card_picture_holder.likes = (TextView) view.findViewById(R.id.likes);
+                        card_picture_holder.activity = (TextView) view.findViewById(R.id.activity);
+                        card_picture_holder.location = (TextView) view.findViewById(R.id.location);
+                        card_picture_holder.uploader.name = (TextView) view.findViewById(R.id.name);
+                        card_picture_holder.uploader.pp = (ImageView) view.findViewById(R.id.pp);
+
+                        view.setTag(card_picture_holder);
+                    } else {
+                        card_picture_holder = (CardPictureViewHolder) view.getTag();
+                    }
+
+                    //Place Holders
+                    card_picture_holder.description.setText("Description");
+                    card_picture_holder.like_button.setText("Like");
+                    card_picture_holder.add_to_bl_button.setText("Bucket");
+                    card_picture_holder.likes.setText("30 Likes");
+                    card_picture_holder.activity.setText("Some activity");
+                    card_picture_holder.location.setText("Some Location");
+                    card_picture_holder.uploader.name.setText("Hassan");
+                    card_picture_holder.uploader.pp.setBackgroundColor(0xFF00FF00);
+
+                    ImageLoader.getInstance().displayImage(imageUrls.get(position), card_picture_holder.image, options, animateFirstListener);
+                    break;
+
+                case TYPE_BLOG:
+
+                    final CardBlogViewHolder card_blog_holder;
+                    if (convertView == null) {
+                        view = inflater.inflate(R.layout.card_blog, parent, false);
+                        card_blog_holder = new CardBlogViewHolder();
+                        card_blog_holder.uploader = new BarUploaderViewHolder();
+                        card_blog_holder.thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
+                        card_blog_holder.title = (TextView) view.findViewById(R.id.title);
+                        card_blog_holder.extract = (TextView) view.findViewById(R.id.extract);
+                        card_blog_holder.likes = (TextView) view.findViewById(R.id.likes);
+                        card_blog_holder.activity = (TextView) view.findViewById(R.id.activity);
+                        card_blog_holder.location = (TextView) view.findViewById(R.id.location);
+                        card_blog_holder.uploader.name = (TextView) view.findViewById(R.id.name);
+                        card_blog_holder.uploader.pp = (ImageView) view.findViewById(R.id.pp);
+
+                        view.setTag(card_blog_holder);
+                    } else {
+                        card_blog_holder = (CardBlogViewHolder) view.getTag();
+                    }
+
+                    //Place Holders
+                    card_blog_holder.thumbnail.setImageResource(R.drawable.ic_add_to_bl);
+                    card_blog_holder.title.setText("A Very JUCY Road Trip! Part III: Antelope Canyon");
+                    card_blog_holder.extract.setText("You’d be pretty hard pressed to find a traveler who hadn’t heard of The Grand Canyon. But what of the...");
+                    card_blog_holder.likes.setText("30 Likes");
+                    card_blog_holder.activity.setText("Some activity");
+                    card_blog_holder.location.setText("Some Location");
+                    card_blog_holder.uploader.name.setText("Hassan");
+                    card_blog_holder.uploader.pp.setBackgroundColor(0xFF00FF00);
+
+                    break;
+
+                default:
+
             }
 
-            //Place Holders
-            card_picture_holder.description.setText("Description");
-            card_picture_holder.like_button.setText("Like");
-            card_picture_holder.add_to_bl_button.setText("Bucket");
-            card_picture_holder.likes.setText("30 Likes");
-            card_picture_holder.activity.setText("Some activity");
-            card_picture_holder.location.setText("Some Location");
-            card_picture_holder.uploader.name.setText("Hassan");
-            card_picture_holder.uploader.pp.setBackgroundColor(0xFF00FF00);
-
-            ImageLoader.getInstance().displayImage(imageUrls.get(position), card_picture_holder.image, options, animateFirstListener);
-
             return view;
+
         }
     }
 
@@ -316,6 +374,18 @@ public class PictureFragment extends Fragment {
         TextView name;
         ImageView pp;
     }
+
+    static class CardBlogViewHolder {
+        ImageView thumbnail;
+        TextView title;
+        TextView extract;
+        TextView likes;
+        TextView activity;
+        TextView location;
+        BarUploaderViewHolder uploader;
+    }
+
+
 
 
     private static class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
