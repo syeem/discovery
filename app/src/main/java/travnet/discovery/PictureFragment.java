@@ -162,7 +162,6 @@ public class PictureFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void  onListViewScrollStart();
         void  onListViewScrollStop();
         void onFragmentInteraction(Uri uri);
@@ -212,13 +211,21 @@ public class PictureFragment extends Fragment {
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(mLayoutManager);
 
-        ((RecyclerView) recyclerView).setAdapter(new ImageAdapter(getActivity()));
+        final ImageAdapter imageAdapter = new ImageAdapter(getActivity());
+        ((RecyclerView) recyclerView).setAdapter(imageAdapter);
 
-        /*listView.setOnScrollListener(new EndlessScrollListener() {
+
+        recyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(mLayoutManager) {
             @Override
-            public boolean onLoadMore(int page, int totalItemsCount) {
+            public void onLoadMore(int page, int totalItemsCount) {
                 requestPictures();
-                return true;
+
+                // update the adapter, saving the last known size
+                int curSize = imageAdapter.getItemCount();
+
+                // for efficiency purposes, only notify the adapter of what elements that got changed
+                // curSize will equal to the index of the first element inserted because the list is 0-indexed
+                imageAdapter.notifyItemRangeInserted(curSize, imageUrls.size() - 1);
             }
 
             @Override
@@ -231,16 +238,13 @@ public class PictureFragment extends Fragment {
                 mListener.onListViewScrollStop();
             }
 
-
-        });*/
+        });
 
     }
 
 
 
-
-
-    //Adapter to populate listView with picture cards
+    //Adapter to populate listView with picture and blog cards
     private static class ImageAdapter extends RecyclerView.Adapter <RecyclerView.ViewHolder>{
 
         private static final int TYPE_PICTURE = 0;
@@ -410,59 +414,71 @@ public class PictureFragment extends Fragment {
     }
 
 
-    //Scroll listener to load more cards when scrolling nears end
-    public abstract class EndlessScrollListener extends RecyclerView.OnScrollListener {
+
+
+
+    public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnScrollListener {
         private int visibleThreshold = LOADING_THRESHOLD;
         private int currentPage = 0;
         private int previousTotalItemCount = 0;
         private boolean loading = true;
         private int startingPageIndex = 0;
 
+        private LinearLayoutManager mLinearLayoutManager;
 
-        public EndlessScrollListener() {
+        public EndlessRecyclerViewScrollListener(LinearLayoutManager layoutManager) {
+            this.mLinearLayoutManager = layoutManager;
         }
 
-        public EndlessScrollListener(int visibleThreshold) {
-            this.visibleThreshold = visibleThreshold;
-        }
+        @Override
+        public void onScrolled(RecyclerView view, int dx, int dy) {
+            int firstVisibleItem = mLinearLayoutManager.findFirstVisibleItemPosition();
+            int visibleItemCount = view.getChildCount();
+            int totalItemCount = mLinearLayoutManager.getItemCount();
 
-       /* @Override
-        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
-        {
-            // If it's still loading, we check to see if the dataset count has
+            // If the total item count is zero and the previous isn't, assume the
+            // list is invalidated and should be reset back to initial state
+            if (totalItemCount < previousTotalItemCount) {
+                this.currentPage = this.startingPageIndex;
+                this.previousTotalItemCount = totalItemCount;
+                if (totalItemCount == 0) {
+                    this.loading = true;
+                }
+            }
+            // If it’s still loading, we check to see if the dataset count has
             // changed, if so we conclude it has finished loading and update the current page
             // number and total item count.
             if (loading && (totalItemCount > previousTotalItemCount)) {
                 loading = false;
                 previousTotalItemCount = totalItemCount;
-                currentPage++;
             }
 
-            // If it isn't currently loading, we check to see if we have breached
+            // If it isn’t currently loading, we check to see if we have breached
             // the visibleThreshold and need to reload more data.
             // If we do need to reload some more data, we execute onLoadMore to fetch the data.
             if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-                loading = onLoadMore(currentPage + 1, totalItemCount);
+                currentPage++;
+                onLoadMore(currentPage, totalItemCount);
+                loading = true;
             }
-        }*/
+        }
 
         // Defines the process for actually loading more data based on page
-        // Returns true if more data is being loaded; returns false if there is no more data to load.
-        public abstract boolean onLoadMore(int page, int totalItemsCount);
+        public abstract void onLoadMore(int page, int totalItemsCount);
 
         public abstract void onScrollStart();
         public abstract void onScrollStop();
 
         @Override
         public void onScrollStateChanged (RecyclerView recyclerView, int newState) {
-            if (newState == SCROLL_STATE_DRAGGING)
+            super.onScrollStateChanged(recyclerView, newState);
+            if (newState == RecyclerView.SCROLL_STATE_DRAGGING)
                 onScrollStart();
-            if (newState == SCROLL_STATE_IDLE)
+            if (newState == RecyclerView.SCROLL_STATE_IDLE)
                 onScrollStop();
 
         }
     }
-
 
 
 
