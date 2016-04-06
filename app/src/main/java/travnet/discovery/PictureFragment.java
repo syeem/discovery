@@ -60,12 +60,25 @@ public class PictureFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    public static final int LOADING_THRESHOLD = 5;
-    public static final int NO_OF_IMAGES = 10;
-    public static final String URL_GET_STRING = "http://54.86.18.174/api/getImages";
+    public static final int LOADING_THRESHOLD = 2;
+    public static final int NO_OF_IMAGES = 5;
+    public static final String URL_GET_STRING = "http://54.86.18.174/api/getCards";
+
+
+    //Data Structure for picture cards and blog cards
+    public class DataPictureCard {
+        String description;
+        String link;
+        String likes;
+        String location;
+        String activity;
+        String uploader_name;
+        String uploader_pp;
+    }
+
+    static ArrayList<DataPictureCard> dataPictureCards;
 
     //View handlers
-    static ArrayList<String> imageUrls;
     LinearLayout layout;
     RecyclerView recyclerView;
     LinearLayoutManager mLayoutManager;
@@ -110,7 +123,7 @@ public class PictureFragment extends Fragment {
         }
 
         //Initialize
-        imageUrls = new ArrayList<String>();
+        dataPictureCards = new ArrayList<>();
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).build();
         ImageLoader.getInstance().init(config);
         imageLoader = ImageLoader.getInstance();
@@ -182,11 +195,21 @@ public class PictureFragment extends Fragment {
                     public void onResponse(String response) {
                         try {
                             JSONObject jsonObj = new JSONObject(response);
-                            JSONArray arrayJson = jsonObj.getJSONArray("image");
+                            JSONArray arrayJson = jsonObj.getJSONArray("cards");
                             for (int i=0; i< NO_OF_IMAGES; i++) {
-                                imageUrls.add(arrayJson.getString(i));
+                                JSONObject card = arrayJson.getJSONObject(i);
+                                DataPictureCard temp = new DataPictureCard();
+                                temp.description = card.getString("description");
+                                temp.link = card.getString("link");
+                                temp.likes = card.getString("likes");
+                                temp.location = card.getString("location");
+                                temp.activity = "Place holder"; /*card.getString("description");*/
+                                temp.uploader_name = card.getString("user-name");
+                                temp.uploader_pp = card.getString("user-img");
+                                dataPictureCards.add(temp);
+
                             }
-                            if (imageUrls.size() == NO_OF_IMAGES)
+                            if (dataPictureCards.size() == NO_OF_IMAGES)
                                 initializeListView();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -225,7 +248,7 @@ public class PictureFragment extends Fragment {
 
                 // for efficiency purposes, only notify the adapter of what elements that got changed
                 // curSize will equal to the index of the first element inserted because the list is 0-indexed
-                imageAdapter.notifyItemRangeInserted(curSize, imageUrls.size() - 1);
+                imageAdapter.notifyItemRangeInserted(curSize, dataPictureCards.size() - 1);
             }
 
             @Override
@@ -324,7 +347,7 @@ public class PictureFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return imageUrls.size();
+            return dataPictureCards.size();
         }
 
         @Override
@@ -355,15 +378,17 @@ public class PictureFragment extends Fragment {
 
                 case TYPE_PICTURE:
                     CardPictureViewHolder cardPictureViewHolder = (CardPictureViewHolder) holder;
-                    cardPictureViewHolder.description.setText("Description");
+
                     cardPictureViewHolder.like_button.setText("Like");
                     cardPictureViewHolder.add_to_bl_button.setText("Bucket");
-                    cardPictureViewHolder.likes.setText("30 Likes");
-                    cardPictureViewHolder.activity.setText("Some activity");
-                    cardPictureViewHolder.location.setText("Some Location");
-                    ImageLoader.getInstance().displayImage(imageUrls.get(position), cardPictureViewHolder.image, options, animateFirstListener);
-                    cardPictureViewHolder.uploader.name.setText("Hassan");
-                    cardPictureViewHolder.uploader.pp.setBackgroundColor(0xFF00FF00);
+
+                    cardPictureViewHolder.description.setText(dataPictureCards.get(position).description);
+                    cardPictureViewHolder.likes.setText(dataPictureCards.get(position).likes + " People Likes this");
+                    cardPictureViewHolder.activity.setText(dataPictureCards.get(position).activity);
+                    cardPictureViewHolder.location.setText(dataPictureCards.get(position).location);
+                    ImageLoader.getInstance().displayImage(dataPictureCards.get(position).link, cardPictureViewHolder.image, options, animateFirstListener);
+                    cardPictureViewHolder.uploader.name.setText(dataPictureCards.get(position).uploader_name);
+                    ImageLoader.getInstance().displayImage(dataPictureCards.get(position).uploader_pp, cardPictureViewHolder.uploader.pp, options, null);
                     break;
 
                 case TYPE_BLOG:
