@@ -1,74 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="350dp">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="350dp">
+
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/description"
-        android:gravity="center"/>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:background="#000000">
-
-        <ImageView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/image" />
-
-        <Button
-            android:id="@+id/like_button"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/image"
-            android:layout_alignRight="@+id/image"
-            android:alpha="0.5" />
+            android:id="@+id/description"
+            android:gravity="center"/>
 
-        <Button
-            android:id="@+id/add_to_bl_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/image"
-            android:layout_toLeftOf="@+id/like_button"
-            android:alpha="0.5" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:background="#000000">
 
-    </RelativeLayout>
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/image" />
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/likes" />
+            <Button
+                android:id="@+id/like_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/image"
+                android:layout_alignRight="@+id/image"
+                android:alpha="0.5" />
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/add_to_bl_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/image"
+                android:layout_toLeftOf="@+id/like_button"
+                android:alpha="0.5" />
+
+        </RelativeLayout>
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_weight="0.5"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/activity" />
+            android:id="@+id/likes" />
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_weight="0.5"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="0.5"
+                android:layout_height="wrap_content"
+                android:id="@+id/activity" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="0.5"
+                android:layout_height="wrap_content"
+                android:id="@+id/location" />
+
+
+        </LinearLayout>
+
+        <include
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/location" />
+            android:id="@+id/uploader"
+            layout="@layout/bar_uploader"/>
+
 
 
     </LinearLayout>
-
-    <include
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/uploader"
-        layout="@layout/bar_uploader"/>
-
-
-
-</LinearLayout>

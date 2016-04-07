@@ -61,8 +61,11 @@ public class PictureFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     public static final int LOADING_THRESHOLD = 2;
-    public static final int NO_OF_IMAGES = 5;
+    public static final int NO_OF_CARDS = 5;
     public static final String URL_GET_STRING = "http://54.86.18.174/api/getCards";
+
+    private static final int TYPE_PICTURE = 0;
+    private static final int TYPE_BLOG = 1;
 
 
     //Data Structure for picture cards and blog cards
@@ -76,7 +79,25 @@ public class PictureFragment extends Fragment {
         String uploader_pp;
     }
 
+    public class DataBlogCard {
+        String thumbnail_url;
+        String title;
+        String extract;
+        String likes;
+        String location;
+        String uploader_name;
+        String uploader_pp;
+    }
+
+    public class CardsRef {
+        int type;
+        int index;
+    }
+
     static ArrayList<DataPictureCard> dataPictureCards;
+    static ArrayList<DataBlogCard> dataBlogCards;
+    static ArrayList<CardsRef> cardsRef;
+
 
     //View handlers
     LinearLayout layout;
@@ -124,6 +145,8 @@ public class PictureFragment extends Fragment {
 
         //Initialize
         dataPictureCards = new ArrayList<>();
+        dataBlogCards = new ArrayList<>();
+        cardsRef = new ArrayList<>();
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).build();
         ImageLoader.getInstance().init(config);
         imageLoader = ImageLoader.getInstance();
@@ -196,20 +219,44 @@ public class PictureFragment extends Fragment {
                         try {
                             JSONObject jsonObj = new JSONObject(response);
                             JSONArray arrayJson = jsonObj.getJSONArray("cards");
-                            for (int i=0; i< NO_OF_IMAGES; i++) {
+                            for (int i=0; i< NO_OF_CARDS; i++) {
                                 JSONObject card = arrayJson.getJSONObject(i);
-                                DataPictureCard temp = new DataPictureCard();
-                                temp.description = card.getString("description");
-                                temp.link = card.getString("link");
-                                temp.likes = card.getString("likes");
-                                temp.location = card.getString("location");
-                                temp.activity = "Place holder"; /*card.getString("description");*/
-                                temp.uploader_name = card.getString("user-name");
-                                temp.uploader_pp = card.getString("user-img");
-                                dataPictureCards.add(temp);
+                                CardsRef cardRef = new CardsRef();
+
+                                String check = card.getString(("card-type"));
+                                if (card.getString("card-type").equals("image")) {
+                                    cardRef.type = TYPE_PICTURE;
+                                    cardRef.index = dataPictureCards.size();
+                                    cardsRef.add(cardRef);
+                                    JSONObject content = card.getJSONObject("content");
+                                    DataPictureCard temp = new DataPictureCard();
+                                    temp.description = content.getString("description");
+                                    temp.link = content.getString("url");
+                                    temp.likes = card.getString("likes");
+                                    temp.location = card.getString("location");
+                                    temp.activity = "Place holder"; /*card.getString("description");*/
+                                    temp.uploader_name = card.getString("user-name");
+                                    temp.uploader_pp = card.getString("user-img");
+                                    dataPictureCards.add(temp);
+                                }
+                                else if (card.getString("card-type").equals("blog")) {
+                                    cardRef.type = TYPE_BLOG;
+                                    cardRef.index = dataBlogCards.size();
+                                    cardsRef.add(cardRef);
+                                    JSONObject content = card.getJSONObject("content");
+                                    DataBlogCard temp = new DataBlogCard();
+                                    temp.thumbnail_url = content.getString("thumbnail");
+                                    temp.title = content.getString("title");
+                                    temp.extract = content.getString("abstract");
+                                    temp.likes = card.getString("likes");
+                                    temp.location = card.getString("location");
+                                    temp.uploader_name = card.getString("user-name");
+                                    temp.uploader_pp = card.getString("user-img");
+                                    dataBlogCards.add(temp);
+                                }
 
                             }
-                            if (dataPictureCards.size() == NO_OF_IMAGES)
+                            if (cardsRef.size() <= NO_OF_CARDS)
                                 initializeListView();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -248,7 +295,7 @@ public class PictureFragment extends Fragment {
 
                 // for efficiency purposes, only notify the adapter of what elements that got changed
                 // curSize will equal to the index of the first element inserted because the list is 0-indexed
-                imageAdapter.notifyItemRangeInserted(curSize, dataPictureCards.size() - 1);
+                imageAdapter.notifyItemRangeInserted(curSize, cardsRef.size() - 1);
             }
 
             @Override
@@ -269,9 +316,6 @@ public class PictureFragment extends Fragment {
 
     //Adapter to populate listView with picture and blog cards
     private static class ImageAdapter extends RecyclerView.Adapter <RecyclerView.ViewHolder>{
-
-        private static final int TYPE_PICTURE = 0;
-        private static final int TYPE_BLOG = 1;
 
         private LayoutInflater inflater;
         private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
@@ -347,7 +391,7 @@ public class PictureFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return dataPictureCards.size();
+            return cardsRef.size();
         }
 
         @Override
@@ -382,32 +426,33 @@ public class PictureFragment extends Fragment {
                     cardPictureViewHolder.like_button.setText("Like");
                     cardPictureViewHolder.add_to_bl_button.setText("Bucket");
 
-                    cardPictureViewHolder.description.setText(dataPictureCards.get(position).description);
-                    cardPictureViewHolder.likes.setText(dataPictureCards.get(position).likes + " People Likes this");
-                    cardPictureViewHolder.activity.setText(dataPictureCards.get(position).activity);
-                    cardPictureViewHolder.location.setText(dataPictureCards.get(position).location);
-                    ImageLoader.getInstance().displayImage(dataPictureCards.get(position).link, cardPictureViewHolder.image, options, animateFirstListener);
-                    cardPictureViewHolder.uploader.name.setText(dataPictureCards.get(position).uploader_name);
-                    ImageLoader.getInstance().displayImage(dataPictureCards.get(position).uploader_pp, cardPictureViewHolder.uploader.pp, options, null);
+                    cardPictureViewHolder.description.setText(dataPictureCards.get(cardsRef.get(position).index).description);
+                    cardPictureViewHolder.likes.setText(dataPictureCards.get(cardsRef.get(position).index).likes + " People Likes this");
+                    cardPictureViewHolder.activity.setText(dataPictureCards.get(cardsRef.get(position).index).activity);
+                    cardPictureViewHolder.location.setText(dataPictureCards.get(cardsRef.get(position).index).location);
+                    ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).link, cardPictureViewHolder.image, options, animateFirstListener);
+                    cardPictureViewHolder.uploader.name.setText(dataPictureCards.get(cardsRef.get(position).index).uploader_name);
+                    ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).uploader_pp, cardPictureViewHolder.uploader.pp, options, null);
                     break;
 
                 case TYPE_BLOG:
                     CardBlogViewHolder cardBlogViewHolder = (CardBlogViewHolder) holder;
-                    cardBlogViewHolder.thumbnail.setImageResource(R.drawable.ic_add_to_bl);
-                    cardBlogViewHolder.title.setText("A Very JUCY Road Trip! Part III: Antelope Canyon");
-                    cardBlogViewHolder.extract.setText("You’d be pretty hard pressed to find a traveler who hadn’t heard of The Grand Canyon. But what of the...");
-                    cardBlogViewHolder.likes.setText("30 Likes");
-                    cardBlogViewHolder.activity.setText("Some activity");
-                    cardBlogViewHolder.location.setText("Some Location");
-                    cardBlogViewHolder.uploader.name.setText("Hassan");
-                    cardBlogViewHolder.uploader.pp.setBackgroundColor(0xFF00FF00);
+                    ImageLoader.getInstance().displayImage(dataBlogCards.get(cardsRef.get(position).index).thumbnail_url, cardBlogViewHolder.thumbnail, options, null);
+                    cardBlogViewHolder.title.setText(dataBlogCards.get(cardsRef.get(position).index).title);
+                    cardBlogViewHolder.extract.setText(dataBlogCards.get(cardsRef.get(position).index).extract);
+                    cardBlogViewHolder.likes.setText(dataBlogCards.get(cardsRef.get(position).index).likes + " People Likes this");
+                    cardBlogViewHolder.activity.setText("Place holder activity");
+                    cardBlogViewHolder.location.setText(dataBlogCards.get(cardsRef.get(position).index).location);
+                    cardBlogViewHolder.uploader.name.setText(dataBlogCards.get(cardsRef.get(position).index).uploader_name);
+                    ImageLoader.getInstance().displayImage(dataBlogCards.get(cardsRef.get(position).index).uploader_pp, cardBlogViewHolder.uploader.pp, options, null);
+
             }
         }
 
 
         @Override
         public int getItemViewType(int position) {
-            return TYPE_PICTURE;
+            return cardsRef.get(position).type;
         }
 
 
