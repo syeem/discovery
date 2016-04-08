@@ -45,7 +45,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -68,17 +67,6 @@ public class PictureFragment extends Fragment {
     private static final int TYPE_BLOG = 1;
 
 
-    //Data Structure for picture cards and blog cards
-    public class DataPictureCard {
-        String description;
-        String link;
-        String likes;
-        String location;
-        String activity;
-        String uploader_name;
-        String uploader_pp;
-    }
-
     public class DataBlogCard {
         String thumbnail_url;
         String title;
@@ -94,7 +82,7 @@ public class PictureFragment extends Fragment {
         int index;
     }
 
-    static ArrayList<DataPictureCard> dataPictureCards;
+    static ArrayList<CardPicture.DataPictureCard> dataPictureCards;
     static ArrayList<DataBlogCard> dataBlogCards;
     static ArrayList<CardsRef> cardsRef;
 
@@ -229,7 +217,7 @@ public class PictureFragment extends Fragment {
                                     cardRef.index = dataPictureCards.size();
                                     cardsRef.add(cardRef);
                                     JSONObject content = card.getJSONObject("content");
-                                    DataPictureCard temp = new DataPictureCard();
+                                    CardPicture.DataPictureCard temp = new CardPicture.DataPictureCard();
                                     temp.description = content.getString("description");
                                     temp.link = content.getString("url");
                                     temp.likes = card.getString("likes");
@@ -322,32 +310,6 @@ public class PictureFragment extends Fragment {
         private DisplayImageOptions options;
 
 
-        public static class CardPictureViewHolder extends RecyclerView.ViewHolder {
-            TextView description;
-            ImageView image;
-            Button like_button;
-            Button add_to_bl_button;
-            TextView likes;
-            TextView activity;
-            TextView location;
-            BarUploaderViewHolder uploader;
-            public CardPictureViewHolder(View itemView) {
-                super(itemView);
-                uploader = new BarUploaderViewHolder ();
-                description = (TextView) itemView.findViewById(R.id.description);
-                image = (ImageView) itemView.findViewById(R.id.image);
-                like_button = (Button) itemView.findViewById(R.id.like_button);
-                add_to_bl_button = (Button) itemView.findViewById(R.id.add_to_bl_button);
-                likes = (TextView) itemView.findViewById(R.id.likes);
-                activity = (TextView) itemView.findViewById(R.id.activity);
-                location = (TextView) itemView.findViewById(R.id.location);
-                uploader.name = (TextView) itemView.findViewById(R.id.name);
-                uploader.pp = (ImageView) itemView.findViewById(R.id.pp);
-
-            }
-        }
-
-
         public static class CardBlogViewHolder extends RecyclerView.ViewHolder {
             ImageView thumbnail;
             TextView title;
@@ -401,7 +363,7 @@ public class PictureFragment extends Fragment {
                 case TYPE_PICTURE:
                     view = LayoutInflater.from(parent.getContext())
                             .inflate(R.layout.card_picture, parent, false);
-                    CardPictureViewHolder cardPictureViewHolder = new CardPictureViewHolder(view);
+                    CardPicture.CardPictureViewHolder cardPictureViewHolder = new CardPicture.CardPictureViewHolder(view);
                     return cardPictureViewHolder;
 
                 case TYPE_BLOG:
@@ -421,7 +383,7 @@ public class PictureFragment extends Fragment {
             switch (holder.getItemViewType()) {
 
                 case TYPE_PICTURE:
-                    CardPictureViewHolder cardPictureViewHolder = (CardPictureViewHolder) holder;
+                    CardPicture.CardPictureViewHolder cardPictureViewHolder = (CardPicture.CardPictureViewHolder) holder;
 
                     cardPictureViewHolder.like_button.setText("Like");
                     cardPictureViewHolder.add_to_bl_button.setText("Bucket");
@@ -430,6 +392,7 @@ public class PictureFragment extends Fragment {
                     cardPictureViewHolder.likes.setText(dataPictureCards.get(cardsRef.get(position).index).likes + " People Likes this");
                     cardPictureViewHolder.activity.setText(dataPictureCards.get(cardsRef.get(position).index).activity);
                     cardPictureViewHolder.location.setText(dataPictureCards.get(cardsRef.get(position).index).location);
+                    cardPictureViewHolder.location.setVisibility(View.GONE);
                     ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).link, cardPictureViewHolder.image, options, animateFirstListener);
                     cardPictureViewHolder.uploader.name.setText(dataPictureCards.get(cardsRef.get(position).index).uploader_name);
                     ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).uploader_pp, cardPictureViewHolder.uploader.pp, options, null);
