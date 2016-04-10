@@ -19,8 +19,8 @@
         app:contentInsetLeft="0dp"
         app:contentInsetStart="0dp"
         android:layout_alignParentBottom="true"
-        android:background="#191970"
-        android:alpha="0.9">
+        android:background="?attr/colorPrimary"
+        android:alpha="1">
 
     </android.support.v7.widget.Toolbar>
 

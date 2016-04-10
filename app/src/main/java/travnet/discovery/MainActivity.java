@@ -3,21 +3,32 @@ package travnet.discovery;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
 
 import com.facebook.login.*;
 import com.facebook.login.LoginFragment;
 
 public class MainActivity extends AppCompatActivity
-        implements travnet.discovery.LoginFragment.OnFragmentInteractionListener, travnet.discovery.LoginFragment.OnLoginListener, PictureFragment.OnFragmentInteractionListener {
+        implements travnet.discovery.LoginFragment.OnFragmentInteractionListener, travnet.discovery.LoginFragment.OnLoginListener,
+        PictureFragment.OnFragmentInteractionListener,
+        ProfileFragment.OnFragmentInteractionListener,
+        UploadFragment.OnFragmentInteractionListener,
+        BucketListFragment.OnFragmentInteractionListener {
 
     Toolbar toolbar;
+    ProfileFragment profileFragment;
+    PictureFragment pictureFragment;
+    UploadFragment uploadFragment;
+    BucketListFragment bucketListFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,17 +36,20 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
 
+        profileFragment = new ProfileFragment();
+        pictureFragment = new PictureFragment();
+        uploadFragment = new UploadFragment();
+        bucketListFragment = new BucketListFragment();
+
         //Check for previous login
         SharedPreferences myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
         boolean isLogged = myPrefs.getBoolean("isLogged", false);
         if (isLogged){
             //Set Picture Fragment
-            PictureFragment pictureFragment = new PictureFragment();
             pictureFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, pictureFragment).commit();
-            toolbar.inflateMenu(R.menu.menu_navigation);
-
+            addToolbar();
         } else {
             //Set Login fragment
             travnet.discovery.LoginFragment loginFragment = new travnet.discovery.LoginFragment();
@@ -66,11 +80,53 @@ public class MainActivity extends AppCompatActivity
         prefsEditor.commit();
 
         //Replace Login Fragment with Picture Fragment
-        PictureFragment pictureFragment = new PictureFragment();
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, pictureFragment);
-        transaction.commit();
-        toolbar.inflateMenu(R.menu.menu_navigation);
+        replaceFragment(pictureFragment);
+        addToolbar();
     }
+
+    private void replaceFragment (Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment);
+        transaction.commit();
+    }
+
+    private void addToolbar () {
+        View navigation = getLayoutInflater().inflate(R.layout.bar_navigation, null);
+        toolbar.addView(navigation);
+
+        Button buttonProfile = (Button)navigation.findViewById(R.id.profile);
+        buttonProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                replaceFragment(profileFragment);
+            }
+        });
+
+        Button buttonHome = (Button)navigation.findViewById(R.id.home);
+        buttonHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                replaceFragment(pictureFragment);
+            }
+        });
+
+        Button buttonUpload = (Button)navigation.findViewById(R.id.upload);
+        buttonUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                replaceFragment(uploadFragment);
+            }
+        });
+
+        Button buttonBucketList = (Button)navigation.findViewById(R.id.bucket_list);
+        buttonBucketList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                replaceFragment(bucketListFragment);
+            }
+        });
+
+    }
+
 
 }

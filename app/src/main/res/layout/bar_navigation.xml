@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/profile"
+        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="Profile"
+        android:background="@android:color/transparent"/>
+    <Button android:id="@+id/home"
+        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="Home"
+        android:background="@android:color/transparent"/>
+    <Button android:id="@+id/upload"
+        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="Upload"
+        android:background="@android:color/transparent" />
+    <Button android:id="@+id/bucket_list"
+        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="Bucket List"
+        android:background="@android:color/transparent" />
+    <Button android:id="@+id/search"
+        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="Search"
+        android:background="@android:color/transparent" />
+
+
+</LinearLayout>
