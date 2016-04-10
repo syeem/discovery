@@ -7,35 +7,35 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
-
 public class CardPicture {
 
-    //Data Structure for picture cards and blog cards
+    //Data Structure for picture cards
     public static class DataPictureCard {
         String description;
         String link;
         String likes;
         String location;
         String activity;
-        String uploader_name;
-        String uploader_pp;
+        DataUploaderBar dataUploaderBar;
 
-        public static DataPictureCard newInstance(String description, String link, String likes, String location, String activity, String uploader_name, String uploader_pp) {
-            DataPictureCard dataPictureCard = new DataPictureCard();
-            dataPictureCard.description = description;
-            dataPictureCard.link = link;
-            dataPictureCard.likes = likes;
-            dataPictureCard.location = location;
-            dataPictureCard.activity = activity;
-            dataPictureCard.uploader_name =uploader_name;
-            dataPictureCard.uploader_pp = uploader_pp;
-            return dataPictureCard;
+        public DataPictureCard() {
+
+        }
+
+        public DataPictureCard(String description, String link, String likes, String location, String activity, String uploader_name, String uploader_pp) {
+            dataUploaderBar = new DataUploaderBar();
+            this.description = description;
+            this.link = link;
+            this.likes = likes;
+            this.location = location;
+            this.activity = activity;
+            this.dataUploaderBar.uploader_name = uploader_name;
+            this.dataUploaderBar.uploader_pp = uploader_pp;
         }
 
     }
 
-
+    //View Holder for picture cards
     public static class CardPictureViewHolder extends RecyclerView.ViewHolder {
         TextView description;
         ImageView image;
@@ -80,12 +80,3 @@ public class CardPicture {
 }
 
 
-
-
-
-
-
-class BarUploaderViewHolder {
-    TextView name;
-    ImageView pp;
-}
