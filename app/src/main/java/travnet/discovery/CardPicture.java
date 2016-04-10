@@ -3,6 +3,7 @@ package travnet.discovery;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -65,8 +66,14 @@ public class CardPicture {
             like_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    like_button.setText("Liked");
+                    //like_button.setText("Liked");
+                    like_button.setVisibility(View.GONE);
+                    add_to_bl_button.setVisibility(View.VISIBLE);
                     location.setVisibility(View.VISIBLE);
+                    AlphaAnimation fadeIn = new AlphaAnimation(0.0f , 1.0f ) ;
+                    location.startAnimation(fadeIn);
+                    fadeIn.setDuration(1200);
+                    fadeIn.setFillAfter(true);
                 }
             });
         }

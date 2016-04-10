@@ -335,6 +335,7 @@ public class PictureFragment extends Fragment {
 
                     cardPictureViewHolder.like_button.setText("Like");
                     cardPictureViewHolder.add_to_bl_button.setText("Bucket");
+                    cardPictureViewHolder.add_to_bl_button.setVisibility(View.GONE);
 
                     cardPictureViewHolder.description.setText(dataPictureCards.get(cardsRef.get(position).index).description);
                     cardPictureViewHolder.likes.setText(dataPictureCards.get(cardsRef.get(position).index).likes + " People Likes this");
