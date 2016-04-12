@@ -1,12 +1,37 @@
 package travnet.discovery;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
+import com.facebook.login.LoginManager;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Set;
+
+
+import pl.aprilapps.easyphotopicker.DefaultCallback;
+import pl.aprilapps.easyphotopicker.EasyImage;
 
 
 /**
@@ -26,6 +51,8 @@ public class UploadFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    ImageView preview;
 
     private OnFragmentInteractionListener mListener;
 
@@ -64,7 +91,18 @@ public class UploadFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_upload, container, false);
+        View view = inflater.inflate(R.layout.fragment_upload, container, false);
+        preview = (ImageView) view.findViewById(R.id.preview);
+        Button buttonUploadFromPhone = (Button) view.findViewById(R.id.upload_from_phone);
+        buttonUploadFromPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                browsePhoneGallery();
+            }
+        });
+
+
+        return  view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -105,4 +143,58 @@ public class UploadFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+
+    public void browsePhoneGallery() {
+        EasyImage.openGallery(this, 1);
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        EasyImage.handleActivityResult(requestCode, resultCode, data, getActivity(), new DefaultCallback() {
+            @Override
+            public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
+                //Some error handling
+            }
+
+            @Override
+            public void onImagePicked(File imageFile, EasyImage.ImageSource source, int type) {
+                Bitmap myBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+                preview.setImageBitmap(myBitmap);
+            }
+        });
+    }
+
+
+    public void browseFbPhotos (){
+        LoginManager.getInstance().logInWithReadPermissions(
+                this,
+                Arrays.asList("user_photos"));
+        final Set<String> set = AccessToken.getCurrentAccessToken().getPermissions();
+
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "me/albums",
+                null,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                        JSONObject responseJSONObject = response.getJSONObject();
+                        try {
+                            JSONArray jsonArray = responseJSONObject.getJSONArray("data");
+                            JSONObject oneAlbum = jsonArray.getJSONObject(0);
+                            String albumName = oneAlbum.getString("name");
+                            Log.v("album", albumName);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        ).executeAsync();
+    }
+
+
 }
