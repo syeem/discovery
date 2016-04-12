@@ -4,9 +4,24 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
+import com.facebook.login.LoginManager;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Arrays;
+import java.util.Set;
 
 
 /**
@@ -63,6 +78,32 @@ public class UploadFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        LoginManager.getInstance().logInWithReadPermissions(
+                this,
+                Arrays.asList("user_photos"));
+        final Set<String> set = AccessToken.getCurrentAccessToken().getPermissions();
+
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "me/albums",
+                null,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                        JSONObject responseJSONObject = response.getJSONObject();
+                        try {
+                            JSONArray jsonArray = responseJSONObject.getJSONArray("data");
+                            JSONObject oneAlbum = jsonArray.getJSONObject(0);
+                            String albumName = oneAlbum.getString("name");
+                            Log.v("album", albumName);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        ).executeAsync();
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_upload, container, false);
     }

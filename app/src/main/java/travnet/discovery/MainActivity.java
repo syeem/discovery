@@ -14,6 +14,11 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 
+import com.facebook.AccessToken;
+import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.login.*;
 import com.facebook.login.LoginFragment;
 
@@ -36,6 +41,8 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
 
+        FacebookSdk.sdkInitialize(this);
+
         profileFragment = new ProfileFragment();
         pictureFragment = new PictureFragment();
         uploadFragment = new UploadFragment();
@@ -44,6 +51,7 @@ public class MainActivity extends AppCompatActivity
         //Check for previous login
         SharedPreferences myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
         boolean isLogged = myPrefs.getBoolean("isLogged", false);
+        //boolean isLogged = false;
         if (isLogged){
             //Set Picture Fragment
             pictureFragment.setArguments(getIntent().getExtras());
