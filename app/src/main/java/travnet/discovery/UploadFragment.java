@@ -11,8 +11,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import android.widget.Button;
 import android.widget.ImageView;
+
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -25,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Set;
@@ -32,6 +35,10 @@ import java.util.Set;
 
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
+
+import java.util.Arrays;
+import java.util.Set;
+
 
 
 /**
@@ -90,6 +97,32 @@ public class UploadFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        LoginManager.getInstance().logInWithReadPermissions(
+                this,
+                Arrays.asList("user_photos"));
+        final Set<String> set = AccessToken.getCurrentAccessToken().getPermissions();
+
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "me/albums",
+                null,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                        JSONObject responseJSONObject = response.getJSONObject();
+                        try {
+                            JSONArray jsonArray = responseJSONObject.getJSONArray("data");
+                            JSONObject oneAlbum = jsonArray.getJSONObject(0);
+                            String albumName = oneAlbum.getString("name");
+                            Log.v("album", albumName);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+        ).executeAsync();
+
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_upload, container, false);
         preview = (ImageView) view.findViewById(R.id.preview);

@@ -77,7 +77,7 @@ public class LoginFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FacebookSdk.sdkInitialize(getActivity().getApplicationContext());
+        //FacebookSdk.sdkInitialize(getActivity().getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
 
         if (getArguments() != null) {
@@ -96,6 +96,8 @@ public class LoginFragment extends Fragment {
         loginButton.setFragment(this);
         loginButton.setReadPermissions("public_profile");
         loginButton.setReadPermissions("email");
+        loginButton.setReadPermissions("user_friends");
+
 
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -120,7 +122,7 @@ public class LoginFragment extends Fragment {
                             }
                         });
                 Bundle parameters = new Bundle();
-                parameters.putString("fields", "email,name");
+                parameters.putString("fields", "email, name");
                 request.setParameters(parameters);
                 request.executeAsync();
 
