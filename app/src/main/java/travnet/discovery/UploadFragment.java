@@ -1,12 +1,16 @@
 package travnet.discovery;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -22,6 +27,10 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.login.LoginManager;
+import com.isseiaoki.simplecropview.CropImageView;
+import com.isseiaoki.simplecropview.callback.CropCallback;
+import com.isseiaoki.simplecropview.callback.LoadCallback;
+import com.isseiaoki.simplecropview.callback.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,12 +63,16 @@ public class UploadFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 2;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
-    ImageView preview;
+    RelativeLayout layout;
+    Button buttonUploadFromPhone;
+    CropImageView cropImageView;
 
     private OnFragmentInteractionListener mListener;
 
@@ -98,42 +111,19 @@ public class UploadFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        LoginManager.getInstance().logInWithReadPermissions(
-                this,
-                Arrays.asList("user_photos"));
-        final Set<String> set = AccessToken.getCurrentAccessToken().getPermissions();
-
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                "me/albums",
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-                        JSONObject responseJSONObject = response.getJSONObject();
-                        try {
-                            JSONArray jsonArray = responseJSONObject.getJSONArray("data");
-                            JSONObject oneAlbum = jsonArray.getJSONObject(0);
-                            String albumName = oneAlbum.getString("name");
-                            Log.v("album", albumName);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-        ).executeAsync();
-
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_upload, container, false);
-        preview = (ImageView) view.findViewById(R.id.preview);
-        Button buttonUploadFromPhone = (Button) view.findViewById(R.id.upload_from_phone);
+        layout= (RelativeLayout) view.findViewById(R.id.layout);
+        cropImageView = (CropImageView) view.findViewById(R.id.crop_image_view);
+        //cropImageView.setInitialFrameScale(0.5f);
+        cropImageView.setCropMode(CropImageView.CropMode.RATIO_16_9);
+        buttonUploadFromPhone = (Button) view.findViewById(R.id.upload_from_phone);
         buttonUploadFromPhone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 browsePhoneGallery();
             }
         });
-
 
         return  view;
     }
@@ -179,8 +169,23 @@ public class UploadFragment extends Fragment {
 
 
     public void browsePhoneGallery() {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (shouldShowRequestPermissionRationale(
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                // Explain to the user why we need to read the contacts
+            }
+
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+            return;
+        }
+
         EasyImage.openGallery(this, 1);
     }
+
 
 
     @Override
@@ -190,16 +195,69 @@ public class UploadFragment extends Fragment {
         EasyImage.handleActivityResult(requestCode, resultCode, data, getActivity(), new DefaultCallback() {
             @Override
             public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
-                //Some error handling
+                Toast.makeText(getActivity().getApplicationContext(), R.string.error_picture_select_failed, Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onImagePicked(File imageFile, EasyImage.ImageSource source, int type) {
                 Bitmap myBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-                preview.setImageBitmap(myBitmap);
+
+                cropImageView.startLoad(Uri.fromFile(imageFile), new LoadCallback() {
+                    @Override
+                    public void onSuccess() {
+                        buttonUploadFromPhone.setVisibility(View.GONE);
+                        cropAndUpload();
+                    }
+
+                    @Override
+                    public void onError() {
+                    }
+                });
+
+
             }
         });
     }
+
+    public Uri createSaveUri() {
+        return Uri.fromFile(new File(getActivity().getCacheDir(), "croppedImage"));
+    }
+
+
+    public void cropAndUpload() {
+        buttonUploadFromPhone.setVisibility(View.GONE);
+
+        Button buttonDone = new Button(getContext());
+        buttonDone.setText("Done");
+        buttonDone.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT));
+        layout.addView(buttonDone);
+        buttonDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cropImageView.startCrop(createSaveUri(),
+                        new CropCallback() {
+                            @Override
+                            public void onSuccess(Bitmap cropped) {
+                                Toast.makeText(getActivity().getApplicationContext(), "Cropped", Toast.LENGTH_LONG).show();
+                            }
+
+                            @Override
+                            public void onError() {}
+                        },
+
+                        new SaveCallback() {
+                            @Override
+                            public void onSuccess(Uri outputUri) {}
+
+                            @Override
+                            public void onError() {}
+                        }
+                );
+            }
+        });
+    }
+
 
 
     public void browseFbPhotos (){
