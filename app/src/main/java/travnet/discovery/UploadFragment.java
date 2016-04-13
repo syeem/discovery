@@ -115,7 +115,6 @@ public class UploadFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_upload, container, false);
         layout= (RelativeLayout) view.findViewById(R.id.layout);
         cropImageView = (CropImageView) view.findViewById(R.id.crop_image_view);
-        //cropImageView.setInitialFrameScale(0.5f);
         cropImageView.setCropMode(CropImageView.CropMode.RATIO_16_9);
         buttonUploadFromPhone = (Button) view.findViewById(R.id.upload_from_phone);
         buttonUploadFromPhone.setOnClickListener(new View.OnClickListener() {
@@ -163,8 +162,8 @@ public class UploadFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+        void onPictureSelected(String imagePath);
     }
 
 
@@ -195,72 +194,27 @@ public class UploadFragment extends Fragment {
         EasyImage.handleActivityResult(requestCode, resultCode, data, getActivity(), new DefaultCallback() {
             @Override
             public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
-                Toast.makeText(getActivity().getApplicationContext(), R.string.error_picture_select_failed, Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity().getApplicationContext(), R.string.error_get_picture_failed, Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onImagePicked(File imageFile, EasyImage.ImageSource source, int type) {
-                Bitmap myBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-
-                cropImageView.startLoad(Uri.fromFile(imageFile), new LoadCallback() {
-                    @Override
-                    public void onSuccess() {
-                        buttonUploadFromPhone.setVisibility(View.GONE);
-                        cropAndUpload();
-                    }
-
-                    @Override
-                    public void onError() {
-                    }
-                });
-
-
+                mListener.onPictureSelected(imageFile.getAbsolutePath());
             }
         });
     }
 
-    public Uri createSaveUri() {
-        return Uri.fromFile(new File(getActivity().getCacheDir(), "croppedImage"));
-    }
-
-
-    public void cropAndUpload() {
-        buttonUploadFromPhone.setVisibility(View.GONE);
-
-        Button buttonDone = new Button(getContext());
-        buttonDone.setText("Done");
-        buttonDone.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+    /*public void getPictureCardInfo(Bitmap croppedImage) {
+        layout.removeAllViews();
+        ImageView previewImage = new ImageView(getContext());
+        previewImage.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT));
-        layout.addView(buttonDone);
-        buttonDone.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cropImageView.startCrop(createSaveUri(),
-                        new CropCallback() {
-                            @Override
-                            public void onSuccess(Bitmap cropped) {
-                                Toast.makeText(getActivity().getApplicationContext(), "Cropped", Toast.LENGTH_LONG).show();
-                            }
-
-                            @Override
-                            public void onError() {}
-                        },
-
-                        new SaveCallback() {
-                            @Override
-                            public void onSuccess(Uri outputUri) {}
-
-                            @Override
-                            public void onError() {}
-                        }
-                );
-            }
-        });
-    }
+        layout.addView(previewImage);
+        previewImage.setImageBitmap(croppedImage);
+    }*/
 
 
-
-    public void browseFbPhotos (){
+    /*public void browseFbPhotos (){
         LoginManager.getInstance().logInWithReadPermissions(
                 this,
                 Arrays.asList("user_photos"));
@@ -285,7 +239,7 @@ public class UploadFragment extends Fragment {
                     }
                 }
         ).executeAsync();
-    }
+    }*/
 
 
 }

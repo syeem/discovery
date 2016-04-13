@@ -2,6 +2,7 @@ package travnet.discovery;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -27,13 +28,16 @@ public class MainActivity extends AppCompatActivity
         PictureFragment.OnFragmentInteractionListener,
         ProfileFragment.OnFragmentInteractionListener,
         UploadFragment.OnFragmentInteractionListener,
-        BucketListFragment.OnFragmentInteractionListener {
+        BucketListFragment.OnFragmentInteractionListener,
+        CropPictureFragment.OnFragmentInteractionListener,
+        AddPictureCardFragment.OnFragmentInteractionListener{
 
     Toolbar toolbar;
     ProfileFragment profileFragment;
     PictureFragment pictureFragment;
     UploadFragment uploadFragment;
     BucketListFragment bucketListFragment;
+    CropPictureFragment cropPictureFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +96,7 @@ public class MainActivity extends AppCompatActivity
         addToolbar();
     }
 
-    private void replaceFragment (Fragment fragment) {
+    public void replaceFragment (Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
         transaction.commit();
@@ -136,5 +140,19 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    public  void onPictureSelected(String imagePath) {
+        Bundle bundle = new Bundle();
+        bundle.putString("path", imagePath);
+        cropPictureFragment = new CropPictureFragment();
+        cropPictureFragment.setArguments(bundle);
+        replaceFragment(cropPictureFragment);
+    }
 
+    public void onImageCropped(Uri uri) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("uri", uri);
+        AddPictureCardFragment addPictureCardFragment = new AddPictureCardFragment();
+        addPictureCardFragment.setArguments(bundle);
+        replaceFragment(addPictureCardFragment);
+    }
 }
