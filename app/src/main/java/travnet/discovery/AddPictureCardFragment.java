@@ -10,6 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.places.Places;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,7 +63,9 @@ public class AddPictureCardFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

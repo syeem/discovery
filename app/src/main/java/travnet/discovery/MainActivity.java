@@ -22,6 +22,9 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.login.*;
 import com.facebook.login.LoginFragment;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.places.Places;
 
 public class MainActivity extends AppCompatActivity
         implements travnet.discovery.LoginFragment.OnFragmentInteractionListener, travnet.discovery.LoginFragment.OnLoginListener,
@@ -30,7 +33,8 @@ public class MainActivity extends AppCompatActivity
         UploadFragment.OnFragmentInteractionListener,
         BucketListFragment.OnFragmentInteractionListener,
         CropPictureFragment.OnFragmentInteractionListener,
-        AddPictureCardFragment.OnFragmentInteractionListener{
+        AddPictureCardFragment.OnFragmentInteractionListener,
+        GoogleApiClient.OnConnectionFailedListener {
 
     Toolbar toolbar;
     ProfileFragment profileFragment;
@@ -39,11 +43,21 @@ public class MainActivity extends AppCompatActivity
     BucketListFragment bucketListFragment;
     CropPictureFragment cropPictureFragment;
 
+    //private GoogleApiClient mGoogleApiClient;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        /*mGoogleApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .enableAutoManage()
+                .build();*/
 
         FacebookSdk.sdkInitialize(this);
 
@@ -154,5 +168,10 @@ public class MainActivity extends AppCompatActivity
         AddPictureCardFragment addPictureCardFragment = new AddPictureCardFragment();
         addPictureCardFragment.setArguments(bundle);
         replaceFragment(addPictureCardFragment);
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
     }
 }
