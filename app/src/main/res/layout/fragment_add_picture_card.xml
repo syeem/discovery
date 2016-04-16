@@ -16,14 +16,32 @@
         android:gravity="center"
         android:layout_below="@id/previewImage"
         android:id="@+id/description"
+        android:imeOptions="actionDone"
+        android:singleLine="true"
         android:hint= "@string/hint_picture_card_description" />
 
-    <fragment
-        android:id="@+id/place_autocomplete_fragment"
+
+    <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-        />
+        android:gravity="center"
+        android:layout_below="@id/description"
+        android:id="@+id/add_location"
+        android:focusable="false"
+        android:hint= "Location" />
+
+
+
+    <AutoCompleteTextView
+        android:id="@+id/add_activity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/add_location"
+        android:gravity="center"
+        android:hint="Activity"
+        android:completionThreshold="1"/>
+
+
 
 
 </RelativeLayout>
