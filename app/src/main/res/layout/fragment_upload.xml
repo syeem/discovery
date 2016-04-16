@@ -39,6 +39,15 @@
         android:layout_centerHorizontal="true"
         android:text="Upload From Phone"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/upload_using_camera"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/upload_from_phone"
+        android:text="Take a picture"/>
+
+
 
 
 

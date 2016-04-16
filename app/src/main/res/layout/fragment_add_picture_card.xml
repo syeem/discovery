@@ -39,6 +39,8 @@
         android:layout_below="@+id/add_location"
         android:gravity="center"
         android:hint="Activity"
+        android:imeOptions="actionDone"
+        android:singleLine="true"
         android:completionThreshold="1"/>
 
 

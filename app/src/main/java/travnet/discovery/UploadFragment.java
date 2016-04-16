@@ -72,6 +72,7 @@ public class UploadFragment extends Fragment {
 
     RelativeLayout layout;
     Button buttonUploadFromPhone;
+    Button buttonUploadUsingCamera;
     CropImageView cropImageView;
 
     private OnFragmentInteractionListener mListener;
@@ -123,6 +124,13 @@ public class UploadFragment extends Fragment {
                 browsePhoneGallery();
             }
         });
+        buttonUploadUsingCamera = (Button) view.findViewById(R.id.upload_using_camera);
+        buttonUploadUsingCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openCamera();
+            }
+        });
 
         return  view;
     }
@@ -166,6 +174,11 @@ public class UploadFragment extends Fragment {
         void onPictureSelected(String imagePath);
     }
 
+
+
+    public void openCamera() {
+        EasyImage.openCamera(this, 2);
+    }
 
     public void browsePhoneGallery() {
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
