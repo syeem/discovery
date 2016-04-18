@@ -73,6 +73,7 @@ public class UploadFragment extends Fragment {
     RelativeLayout layout;
     Button buttonUploadFromPhone;
     Button buttonUploadUsingCamera;
+    Button buttonUploadBlog;
     CropImageView cropImageView;
 
     private OnFragmentInteractionListener mListener;
@@ -132,6 +133,14 @@ public class UploadFragment extends Fragment {
             }
         });
 
+        buttonUploadBlog = (Button) view.findViewById(R.id.upload_blog);
+        buttonUploadBlog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mListener.onUploadingBlog();
+            }
+        });
+
         return  view;
     }
 
@@ -172,6 +181,7 @@ public class UploadFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
         void onPictureSelected(String imagePath);
+        void onUploadingBlog();
     }
 
 

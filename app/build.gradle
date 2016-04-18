@@ -4,6 +4,7 @@ repositories {
     mavenCentral()
     maven { url "https://jitpack.io" }
     jcenter()
+    maven { url 'https://github.com/leonardocardoso/mvn-repo/raw/master/maven-deploy' }
 }
 
 android {
@@ -38,4 +39,6 @@ dependencies {
     compile 'com.github.jkwiecien:EasyImage:1.2.1'
     compile 'com.isseiaoki:simplecropview:1.1.0'
     compile 'com.google.android.gms:play-services-location:8.4.0'
+    compile 'org.jsoup:jsoup:1.8.3'
+    compile 'com.leocardz:link-preview:1.2.1@aar'
 }

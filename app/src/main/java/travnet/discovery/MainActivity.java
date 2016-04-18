@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity
         BucketListFragment.OnFragmentInteractionListener,
         CropPictureFragment.OnFragmentInteractionListener,
         AddPictureCardFragment.OnFragmentInteractionListener,
+        AddBlogCardFragment.OnFragmentInteractionListener,
         GoogleApiClient.OnConnectionFailedListener {
 
     Toolbar toolbar;
@@ -161,6 +162,12 @@ public class MainActivity extends AppCompatActivity
         cropPictureFragment.setArguments(bundle);
         replaceFragment(cropPictureFragment);
     }
+
+    public void onUploadingBlog() {
+        AddBlogCardFragment addBlogCardFragment = new AddBlogCardFragment();
+        replaceFragment(addBlogCardFragment);
+    }
+
 
     public void onImageCropped(Uri uri) {
         Bundle bundle = new Bundle();
