@@ -21,6 +21,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.leocardz.link.preview.library.LinkPreviewCallback;
@@ -202,7 +203,52 @@ public class AddBlogCardFragment extends Fragment {
     };
 
 
+
     public void postBlog() {
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        String url = "http://54.86.18.174/api/postBlog";
+        String image = getStringImage(blogThumbnail);
+
+        JSONObject blog = new JSONObject();
+        try {
+            blog.put("card-type", "blog");
+            blog.put("url", blogURL);
+            blog.put("title", blogTitle);
+            blog.put("extract", blogExtract);
+            blog.put("thumbnail", image);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.POST, url, blog, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getActivity().getApplicationContext(), R.string.error_connect_server_failed, Toast.LENGTH_LONG).show();
+                    }
+                });
+
+        queue.add(jsObjRequest);
+    }
+
+
+
+
+
+
+
+
+
+
+
+    /*public void postBlog() {
         RequestQueue queue = Volley.newRequestQueue(getContext());
         String url = "http://54.86.18.174/api/postBlog";
 
@@ -236,7 +282,7 @@ public class AddBlogCardFragment extends Fragment {
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
-    }
+    }*/
 
     public String getStringImage(Bitmap bitmap){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
