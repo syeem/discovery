@@ -14,6 +14,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 
+import com.facebook.FacebookSdk;
 import com.facebook.login.*;
 import com.facebook.login.LoginFragment;
 
@@ -22,7 +23,8 @@ public class MainActivity extends AppCompatActivity
         PictureFragment.OnFragmentInteractionListener,
         ProfileFragment.OnFragmentInteractionListener,
         UploadFragment.OnFragmentInteractionListener,
-        BucketListFragment.OnFragmentInteractionListener {
+        BucketListFragment.OnFragmentInteractionListener,
+        ProfileInfoFragment.OnFragmentInteractionListener {
 
     Toolbar toolbar;
     ProfileFragment profileFragment;
@@ -35,6 +37,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        FacebookSdk.sdkInitialize(this);
 
         profileFragment = new ProfileFragment();
         pictureFragment = new PictureFragment();
