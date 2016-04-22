@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 //Data Structure for blog cards
 public class DataBlogCard {
+    String url;
     String thumbnail_url;
     String title;
     String extract;
@@ -20,8 +21,9 @@ public class DataBlogCard {
     public DataBlogCard() {
     }
 
-    public DataBlogCard(String thumbnail_url, String title, String extract, int likes, String location, String uploader_name, String uploader_pp) {
+    public DataBlogCard(String url, String thumbnail_url, String title, String extract, int likes, String location, String uploader_name, String uploader_pp) {
         dataUploaderBar = new DataUploaderBar();
+        this.url = url;
         this.thumbnail_url = thumbnail_url;
         this.title = title;
         this.extract = extract;
