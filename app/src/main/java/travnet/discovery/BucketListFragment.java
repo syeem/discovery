@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -58,13 +59,26 @@ public class BucketListFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        if (getParentFragment() != null) {
+            onAttachFragment(getParentFragment());
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_bucket_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_bucket_list, container, false);
+
+        view.findViewById(R.id.bucket_list_scroll).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                mListener.onFragmentInteraction(Uri.EMPTY);
+                return false;
+            }
+        });
+
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -90,6 +104,18 @@ public class BucketListFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+    public void onAttachFragment(Fragment fragment) {
+        if (fragment instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) fragment;
+        } else {
+            throw new RuntimeException(fragment.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+
+
 
     /**
      * This interface must be implemented by activities that contain this

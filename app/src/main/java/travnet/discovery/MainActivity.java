@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity
         ProfileFragment.OnFragmentInteractionListener,
         UploadFragment.OnFragmentInteractionListener,
         BucketListFragment.OnFragmentInteractionListener,
-        ProfileInfoFragment.OnFragmentInteractionListener {
+        ProfileInfoFragment.OnFragmentInteractionListener{
 
     Toolbar toolbar;
     ProfileFragment profileFragment;

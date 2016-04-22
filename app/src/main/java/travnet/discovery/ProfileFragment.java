@@ -4,10 +4,14 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTabHost;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.widget.FrameLayout;
 
 
 /**
@@ -18,7 +22,8 @@ import android.view.ViewGroup;
  * Use the {@link ProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment
+    implements BucketListFragment.OnFragmentInteractionListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -27,6 +32,9 @@ public class ProfileFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    FrameLayout profileTopContainer;
+    FragmentTabHost tabHost;
 
     private OnFragmentInteractionListener mListener;
 
@@ -67,12 +75,21 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        profileTopContainer = (FrameLayout) view.findViewById(R.id.profile_top_container);
+
         ProfileInfoFragment profileInfoFragment = new ProfileInfoFragment();
-        UploadFragment test2 = new UploadFragment();
         FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         transaction.add(R.id.profile_top_container, profileInfoFragment).commit();
-        transaction = getChildFragmentManager().beginTransaction();
-        transaction.add(R.id.profile_bottom_container, test2).commit();
+
+        tabHost = (FragmentTabHost) view.findViewById(android.R.id.tabhost);
+        tabHost.setup(getActivity(), getChildFragmentManager(), android.R.id.tabcontent);
+
+        tabHost.addTab(tabHost.newTabSpec("photos").setIndicator("Photos"),
+                PictureFragment.class, null);
+        tabHost.addTab(tabHost.newTabSpec("bucket list").setIndicator("Bucket List"),
+                BucketListFragment.class, null);
+        tabHost.addTab(tabHost.newTabSpec("interests").setIndicator("Interests"),
+                BucketListFragment.class, null);
 
         return view;
     }
@@ -100,6 +117,13 @@ public class ProfileFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        profileTopContainer.setVisibility(View.GONE);
+    }
+
+
 
     /**
      * This interface must be implemented by activities that contain this
