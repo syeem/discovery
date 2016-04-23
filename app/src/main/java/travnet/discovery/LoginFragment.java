@@ -98,6 +98,7 @@ public class LoginFragment extends Fragment {
         loginButton.setReadPermissions("email");
         loginButton.setReadPermissions("user_hometown");
         loginButton.setReadPermissions("user_location");
+        loginButton.setReadPermissions("user_friends");
 
 
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -123,7 +124,7 @@ public class LoginFragment extends Fragment {
                             }
                         });
                 Bundle parameters = new Bundle();
-                parameters.putString("fields", "email,name");
+                parameters.putString("fields", "email, name");
                 request.setParameters(parameters);
                 request.executeAsync();
 

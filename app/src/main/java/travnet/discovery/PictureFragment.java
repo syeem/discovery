@@ -1,10 +1,12 @@
 package travnet.discovery;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -13,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
@@ -45,7 +48,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -68,26 +70,6 @@ public class PictureFragment extends Fragment {
     private static final int TYPE_BLOG = 1;
 
 
-    //Data Structure for picture cards and blog cards
-    public class DataPictureCard {
-        String description;
-        String link;
-        String likes;
-        String location;
-        String activity;
-        String uploader_name;
-        String uploader_pp;
-    }
-
-    public class DataBlogCard {
-        String thumbnail_url;
-        String title;
-        String extract;
-        String likes;
-        String location;
-        String uploader_name;
-        String uploader_pp;
-    }
 
     public class CardsRef {
         int type;
@@ -187,16 +169,7 @@ public class PictureFragment extends Fragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+   // Interface with Activity
     public interface OnFragmentInteractionListener {
         void  onListViewScrollStart();
         void  onListViewScrollStop();
@@ -229,14 +202,9 @@ public class PictureFragment extends Fragment {
                                     cardRef.index = dataPictureCards.size();
                                     cardsRef.add(cardRef);
                                     JSONObject content = card.getJSONObject("content");
-                                    DataPictureCard temp = new DataPictureCard();
-                                    temp.description = content.getString("description");
-                                    temp.link = content.getString("url");
-                                    temp.likes = card.getString("likes");
-                                    temp.location = card.getString("location");
-                                    temp.activity = "Place holder"; /*card.getString("description");*/
-                                    temp.uploader_name = card.getString("user-name");
-                                    temp.uploader_pp = card.getString("user-img");
+                                    DataPictureCard temp = new DataPictureCard(content.getString("description"), content.getString("url"),
+                                            card.getInt("likes"), card.getString("location"), "Place holder", card.getString("user-name"),
+                                            card.getString("user-img"));
                                     dataPictureCards.add(temp);
                                 }
                                 else if (card.getString("card-type").equals("blog")) {
@@ -244,15 +212,11 @@ public class PictureFragment extends Fragment {
                                     cardRef.index = dataBlogCards.size();
                                     cardsRef.add(cardRef);
                                     JSONObject content = card.getJSONObject("content");
-                                    DataBlogCard temp = new DataBlogCard();
-                                    temp.thumbnail_url = content.getString("thumbnail");
-                                    temp.title = content.getString("title");
-                                    temp.extract = content.getString("abstract");
-                                    temp.likes = card.getString("likes");
-                                    temp.location = card.getString("location");
-                                    temp.uploader_name = card.getString("user-name");
-                                    temp.uploader_pp = card.getString("user-img");
+                                    DataBlogCard temp = new DataBlogCard(content.getString("url"), content.getString("thumbnail"), content.getString("title"),
+                                            content.getString("abstract"), card.getInt("likes"), card.getString("location"), card.getString("user-name"),
+                                            card.getString("user-img"));
                                     dataBlogCards.add(temp);
+
                                 }
 
                             }
@@ -315,62 +279,11 @@ public class PictureFragment extends Fragment {
 
 
     //Adapter to populate listView with picture and blog cards
-    private static class ImageAdapter extends RecyclerView.Adapter <RecyclerView.ViewHolder>{
+    public class ImageAdapter extends RecyclerView.Adapter <RecyclerView.ViewHolder> {
 
         private LayoutInflater inflater;
         private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
         private DisplayImageOptions options;
-
-
-        public static class CardPictureViewHolder extends RecyclerView.ViewHolder {
-            TextView description;
-            ImageView image;
-            Button like_button;
-            Button add_to_bl_button;
-            TextView likes;
-            TextView activity;
-            TextView location;
-            BarUploaderViewHolder uploader;
-            public CardPictureViewHolder(View itemView) {
-                super(itemView);
-                uploader = new BarUploaderViewHolder ();
-                description = (TextView) itemView.findViewById(R.id.description);
-                image = (ImageView) itemView.findViewById(R.id.image);
-                like_button = (Button) itemView.findViewById(R.id.like_button);
-                add_to_bl_button = (Button) itemView.findViewById(R.id.add_to_bl_button);
-                likes = (TextView) itemView.findViewById(R.id.likes);
-                activity = (TextView) itemView.findViewById(R.id.activity);
-                location = (TextView) itemView.findViewById(R.id.location);
-                uploader.name = (TextView) itemView.findViewById(R.id.name);
-                uploader.pp = (ImageView) itemView.findViewById(R.id.pp);
-
-            }
-        }
-
-
-        public static class CardBlogViewHolder extends RecyclerView.ViewHolder {
-            ImageView thumbnail;
-            TextView title;
-            TextView extract;
-            TextView likes;
-            TextView activity;
-            TextView location;
-            BarUploaderViewHolder uploader;
-            public CardBlogViewHolder(View itemView) {
-                super(itemView);
-                uploader = new BarUploaderViewHolder ();
-                thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
-                title = (TextView) itemView.findViewById(R.id.title);
-                extract = (TextView) itemView.findViewById(R.id.extract);
-                likes = (TextView) itemView.findViewById(R.id.likes);
-                activity = (TextView) itemView.findViewById(R.id.activity);
-                location = (TextView) itemView.findViewById(R.id.location);
-                uploader.name = (TextView) itemView.findViewById(R.id.name);
-                uploader.pp = (ImageView) itemView.findViewById(R.id.pp);
-
-            }
-        }
-
 
 
         ImageAdapter(Context context) {
@@ -417,7 +330,7 @@ public class PictureFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
             switch (holder.getItemViewType()) {
 
                 case TYPE_PICTURE:
@@ -431,8 +344,19 @@ public class PictureFragment extends Fragment {
                     cardPictureViewHolder.activity.setText(dataPictureCards.get(cardsRef.get(position).index).activity);
                     cardPictureViewHolder.location.setText(dataPictureCards.get(cardsRef.get(position).index).location);
                     ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).link, cardPictureViewHolder.image, options, animateFirstListener);
-                    cardPictureViewHolder.uploader.name.setText(dataPictureCards.get(cardsRef.get(position).index).uploader_name);
-                    ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).uploader_pp, cardPictureViewHolder.uploader.pp, options, null);
+                    cardPictureViewHolder.uploader.name.setText(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_name);
+                    ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_pp, cardPictureViewHolder.uploader.pp, options, null);
+
+                    if (dataPictureCards.get(cardsRef.get(position).index).isLiked == false) {
+                        cardPictureViewHolder.like_button.setVisibility(View.VISIBLE);
+                        cardPictureViewHolder.add_to_bl_button.setVisibility(View.GONE);
+                        cardPictureViewHolder.location.setVisibility(View.GONE);
+                        cardPictureViewHolder.addLikeCallback(dataPictureCards.get(cardsRef.get(position).index), this, position);
+                    } else {
+                        cardPictureViewHolder.like_button.setVisibility(View.GONE);
+                        cardPictureViewHolder.add_to_bl_button.setVisibility(View.VISIBLE);
+                        cardPictureViewHolder.location.setVisibility(View.VISIBLE);
+                    }
                     break;
 
                 case TYPE_BLOG:
@@ -440,12 +364,24 @@ public class PictureFragment extends Fragment {
                     ImageLoader.getInstance().displayImage(dataBlogCards.get(cardsRef.get(position).index).thumbnail_url, cardBlogViewHolder.thumbnail, options, null);
                     cardBlogViewHolder.title.setText(dataBlogCards.get(cardsRef.get(position).index).title);
                     cardBlogViewHolder.extract.setText(dataBlogCards.get(cardsRef.get(position).index).extract);
+                    cardBlogViewHolder.like_button.setText("Like");
                     cardBlogViewHolder.likes.setText(dataBlogCards.get(cardsRef.get(position).index).likes + " People Likes this");
                     cardBlogViewHolder.activity.setText("Place holder activity");
                     cardBlogViewHolder.location.setText(dataBlogCards.get(cardsRef.get(position).index).location);
-                    cardBlogViewHolder.uploader.name.setText(dataBlogCards.get(cardsRef.get(position).index).uploader_name);
-                    ImageLoader.getInstance().displayImage(dataBlogCards.get(cardsRef.get(position).index).uploader_pp, cardBlogViewHolder.uploader.pp, options, null);
+                    cardBlogViewHolder.uploader.name.setText(dataBlogCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_name);
+                    ImageLoader.getInstance().displayImage(dataBlogCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_pp, cardBlogViewHolder.uploader.pp, options, null);
 
+                    cardBlogViewHolder.cardView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(dataBlogCards.get(cardsRef.get(position).index).url));
+                            getActivity().startActivity(browserIntent);
+                        }
+                    });
+
+                    if (dataPictureCards.get(cardsRef.get(position).index).isLiked == false) {
+                        cardBlogViewHolder.addLikeCallback(dataBlogCards.get(cardsRef.get(position).index), this, position);
+                    }
             }
         }
 
