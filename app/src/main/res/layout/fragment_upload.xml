@@ -1,13 +1,61 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="travnet.discovery.UploadFragment">
+    tools:context="travnet.discovery.UploadFragment"
+    android:id="@+id/layout">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Upload Fragment" />
 
-</FrameLayout>
+    <!--ImageView
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:id="@+id/preview"
+        android:background="#D3D3D3"/-->
+
+    <com.isseiaoki.simplecropview.CropImageView
+        xmlns:custom="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/crop_image_view"
+        android:layout_weight="1"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        custom:scv_handle_color="@color/colorAccent"
+        custom:scv_guide_color="@color/colorAccent"
+        custom:scv_frame_color="@color/colorAccent"
+        custom:scv_touch_padding="8dp"
+        custom:scv_handle_show_mode="not_show"
+        custom:scv_guide_show_mode="not_show"
+        custom:scv_frame_stroke_weight="1dp"/>
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/upload_from_phone"
+        android:layout_centerHorizontal="true"
+        android:text="Upload From Phone"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/upload_using_camera"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/upload_from_phone"
+        android:text="Take a picture"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/upload_blog"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/upload_using_camera"
+        android:text="Upload Blog"/>
+
+
+
+
+</RelativeLayout>
