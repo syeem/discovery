@@ -1,6 +1,7 @@
 package travnet.discovery;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -211,7 +212,7 @@ public class PictureFragment extends Fragment {
                                     cardRef.index = dataBlogCards.size();
                                     cardsRef.add(cardRef);
                                     JSONObject content = card.getJSONObject("content");
-                                    DataBlogCard temp = new DataBlogCard(content.getString("thumbnail"), content.getString("title"),
+                                    DataBlogCard temp = new DataBlogCard(content.getString("url"), content.getString("thumbnail"), content.getString("title"),
                                             content.getString("abstract"), card.getInt("likes"), card.getString("location"), card.getString("user-name"),
                                             card.getString("user-img"));
                                     dataBlogCards.add(temp);
@@ -278,7 +279,7 @@ public class PictureFragment extends Fragment {
 
 
     //Adapter to populate listView with picture and blog cards
-    public static class ImageAdapter extends RecyclerView.Adapter <RecyclerView.ViewHolder> {
+    public class ImageAdapter extends RecyclerView.Adapter <RecyclerView.ViewHolder> {
 
         private LayoutInflater inflater;
         private ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
@@ -369,6 +370,14 @@ public class PictureFragment extends Fragment {
                     cardBlogViewHolder.location.setText(dataBlogCards.get(cardsRef.get(position).index).location);
                     cardBlogViewHolder.uploader.name.setText(dataBlogCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_name);
                     ImageLoader.getInstance().displayImage(dataBlogCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_pp, cardBlogViewHolder.uploader.pp, options, null);
+
+                    cardBlogViewHolder.cardView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(dataBlogCards.get(cardsRef.get(position).index).url));
+                            getActivity().startActivity(browserIntent);
+                        }
+                    });
 
                     if (dataPictureCards.get(cardsRef.get(position).index).isLiked == false) {
                         cardBlogViewHolder.addLikeCallback(dataBlogCards.get(cardsRef.get(position).index), this, position);

@@ -96,6 +96,8 @@ public class LoginFragment extends Fragment {
         loginButton.setFragment(this);
         loginButton.setReadPermissions("public_profile");
         loginButton.setReadPermissions("email");
+        loginButton.setReadPermissions("user_hometown");
+        loginButton.setReadPermissions("user_location");
         loginButton.setReadPermissions("user_friends");
 
 

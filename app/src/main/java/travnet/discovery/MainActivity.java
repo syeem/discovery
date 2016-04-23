@@ -15,6 +15,8 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 
+
+import com.facebook.FacebookSdk;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity
         ProfileFragment.OnFragmentInteractionListener,
         UploadFragment.OnFragmentInteractionListener,
         BucketListFragment.OnFragmentInteractionListener,
+        ProfileInfoFragment.OnFragmentInteractionListener,
         CropPictureFragment.OnFragmentInteractionListener,
         AddPictureCardFragment.OnFragmentInteractionListener,
         AddBlogCardFragment.OnFragmentInteractionListener,
@@ -44,21 +47,11 @@ public class MainActivity extends AppCompatActivity
     BucketListFragment bucketListFragment;
     CropPictureFragment cropPictureFragment;
 
-    //private GoogleApiClient mGoogleApiClient;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-
-        /*mGoogleApiClient = new GoogleApiClient
-                .Builder(this)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .enableAutoManage()
-                .build();*/
 
         FacebookSdk.sdkInitialize(this);
 

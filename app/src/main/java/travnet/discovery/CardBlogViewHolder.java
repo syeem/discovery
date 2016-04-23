@@ -1,6 +1,9 @@
 package travnet.discovery;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
@@ -9,6 +12,8 @@ import android.widget.TextView;
 
 //View Holder for picture cards
 public class CardBlogViewHolder extends RecyclerView.ViewHolder {
+    View cardView;
+
     ImageView thumbnail;
     TextView title;
     TextView extract;
@@ -20,6 +25,7 @@ public class CardBlogViewHolder extends RecyclerView.ViewHolder {
 
     public CardBlogViewHolder(View itemView) {
         super(itemView);
+        cardView = itemView;
         uploader = new BarUploaderViewHolder ();
         thumbnail = (ImageView) itemView.findViewById(R.id.thumbnail);
         title = (TextView) itemView.findViewById(R.id.title);
