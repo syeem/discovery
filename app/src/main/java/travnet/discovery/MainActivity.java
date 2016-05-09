@@ -4,16 +4,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 
 
 import com.facebook.FacebookSdk;
@@ -38,20 +44,25 @@ public class MainActivity extends AppCompatActivity
         CropPictureFragment.OnFragmentInteractionListener,
         AddPictureCardFragment.OnFragmentInteractionListener,
         AddBlogCardFragment.OnFragmentInteractionListener,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        NavigationView.OnNavigationItemSelectedListener {
 
-    Toolbar toolbar;
     ProfileFragment profileFragment;
     PictureFragment pictureFragment;
     UploadFragment uploadFragment;
     BucketListFragment bucketListFragment;
     CropPictureFragment cropPictureFragment;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        //Initialize navigation drawer
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
 
         FacebookSdk.sdkInitialize(this);
 
@@ -69,7 +80,6 @@ public class MainActivity extends AppCompatActivity
             pictureFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, pictureFragment).commit();
-            addToolbar();
         } else {
             //Set Login fragment
             travnet.discovery.LoginFragment loginFragment = new travnet.discovery.LoginFragment();
@@ -85,11 +95,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onListViewScrollStart(){
-        toolbar.animate().translationY(toolbar.getBottom()).setInterpolator(new AccelerateInterpolator()).start();
     }
 
     public void onListViewScrollStop(){
-        toolbar.animate().translationY(0).setInterpolator(new DecelerateInterpolator()).start();
     }
 
     public void onLoginSuccessful(){
@@ -101,7 +109,6 @@ public class MainActivity extends AppCompatActivity
 
         //Replace Login Fragment with Picture Fragment
         replaceFragment(pictureFragment);
-        addToolbar();
     }
 
     public void replaceFragment (Fragment fragment) {
@@ -110,43 +117,6 @@ public class MainActivity extends AppCompatActivity
         transaction.commit();
     }
 
-    private void addToolbar () {
-        View navigation = getLayoutInflater().inflate(R.layout.bar_navigation, null);
-        toolbar.addView(navigation);
-
-        Button buttonProfile = (Button)navigation.findViewById(R.id.profile);
-        buttonProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                replaceFragment(profileFragment);
-            }
-        });
-
-        Button buttonHome = (Button)navigation.findViewById(R.id.home);
-        buttonHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                replaceFragment(pictureFragment);
-            }
-        });
-
-        Button buttonUpload = (Button)navigation.findViewById(R.id.upload);
-        buttonUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                replaceFragment(uploadFragment);
-            }
-        });
-
-        Button buttonBucketList = (Button)navigation.findViewById(R.id.bucket_list);
-        buttonBucketList.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                replaceFragment(bucketListFragment);
-            }
-        });
-
-    }
 
     public  void onPictureSelected(String imagePath) {
         Bundle bundle = new Bundle();
@@ -174,4 +144,24 @@ public class MainActivity extends AppCompatActivity
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
+
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.nav_profile_photos) {
+
+        } else if (id == R.id.nav_profile_interests) {
+
+        } else if (id == R.id.nav_profile_bucket_list) {
+
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+
 }
