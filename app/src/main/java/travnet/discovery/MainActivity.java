@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -32,6 +31,7 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.login.*;
 import com.facebook.login.LoginFragment;
+import com.github.clans.fab.FloatingActionButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.places.Places;
@@ -39,16 +39,13 @@ import com.google.android.gms.location.places.Places;
 public class MainActivity extends AppCompatActivity
         implements travnet.discovery.LoginFragment.OnFragmentInteractionListener, travnet.discovery.LoginFragment.OnLoginListener,
         PictureFragment.OnFragmentInteractionListener,
-        UploadFragment.OnFragmentInteractionListener,
         ProfileInfoFragment.OnFragmentInteractionListener,
         CropPictureFragment.OnFragmentInteractionListener,
         AddPictureCardFragment.OnFragmentInteractionListener,
-        AddBlogCardFragment.OnFragmentInteractionListener,
         GoogleApiClient.OnConnectionFailedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
     PictureFragment pictureFragment;
-    UploadFragment uploadFragment;
     CropPictureFragment cropPictureFragment;
 
 
@@ -61,13 +58,26 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //Floating Action Button
-        FloatingActionButton fabAdd = (FloatingActionButton) findViewById(R.id.fab_add);
-        fabAdd.setOnClickListener(new View.OnClickListener() {
+        //Floating action buttons
+        FloatingActionButton fabAddBlog = (FloatingActionButton) findViewById(R.id.fab_add_blog);
+        fabAddBlog.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onClick(View v) {
+                addBlogCard();
+            }
+        });
+        FloatingActionButton fabAddPictureGallery = (FloatingActionButton) findViewById(R.id.fab_add_picture_gallery);
+        fabAddPictureGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addPictureCardGallery();
+            }
+        });
+        FloatingActionButton fabAddPictureCamera = (FloatingActionButton) findViewById(R.id.fab_add_picture_camera);
+        fabAddPictureCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addPictureCardCamera();
             }
         });
 
@@ -75,13 +85,12 @@ public class MainActivity extends AppCompatActivity
         FacebookSdk.sdkInitialize(this);
 
         pictureFragment = new PictureFragment();
-        uploadFragment = new UploadFragment();
 
         //Check for previous login
         SharedPreferences myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
         boolean isLogged = myPrefs.getBoolean("isLogged", false);
         //boolean isLogged = false;
-        if (isLogged){
+        if (isLogged) {
             //Set Picture Fragment
             pictureFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction()
@@ -133,8 +142,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onUploadingBlog() {
-        AddBlogCardFragment addBlogCardFragment = new AddBlogCardFragment();
-        replaceFragment(addBlogCardFragment);
+
     }
 
 
@@ -172,6 +180,24 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+    void addBlogCard() {
+        Intent intent = new Intent(this, AddBlogCardActivity.class);
+        this.startActivity(intent);
+    }
+
+    void addPictureCardGallery() {
+        Intent intent = new Intent(this, AddPictureCardActivity.class);
+        intent.putExtra("source", "gallery");
+        this.startActivity(intent);
+    }
+
+    void addPictureCardCamera() {
+        Intent intent = new Intent(this, AddPictureCardActivity.class);
+        intent.putExtra("source", "camera");
+        this.startActivity(intent);
     }
 
 

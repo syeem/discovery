@@ -19,5 +19,8 @@
     <string name="title_activity_pictures">PicturesActivity</string>
     <string name="title_activity_bucket_list">BucketListActivity</string>
     <string name="title_activity_interest">InterestActivity</string>
+    <string name="title_activity_add_blog_card">AddBlogCardActivity</string>
+    <string name="title_activity_add_picture_card">AddPictureCardActivity</string>
+    <string name="title_activity_crop_picture">CropPictureActivity</string>
 
 </resources>

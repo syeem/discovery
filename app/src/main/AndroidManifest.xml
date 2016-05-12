@@ -44,6 +44,18 @@
         <activity
             android:name=".InterestActivity"
             android:label="@string/title_activity_interest"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AddBlogCardActivity"
+            android:label="@string/title_activity_add_blog_card"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AddPictureCardActivity"
+            android:label="@string/title_activity_add_picture_card"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".CropPictureActivity"
+            android:label="@string/title_activity_crop_picture"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
