@@ -16,5 +16,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_pictures">PicturesActivity</string>
+    <string name="title_activity_bucket_list">BucketListActivity</string>
+    <string name="title_activity_interest">InterestActivity</string>
 
 </resources>

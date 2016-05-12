@@ -4,7 +4,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -37,9 +39,7 @@ import com.google.android.gms.location.places.Places;
 public class MainActivity extends AppCompatActivity
         implements travnet.discovery.LoginFragment.OnFragmentInteractionListener, travnet.discovery.LoginFragment.OnLoginListener,
         PictureFragment.OnFragmentInteractionListener,
-        ProfileFragment.OnFragmentInteractionListener,
         UploadFragment.OnFragmentInteractionListener,
-        BucketListFragment.OnFragmentInteractionListener,
         ProfileInfoFragment.OnFragmentInteractionListener,
         CropPictureFragment.OnFragmentInteractionListener,
         AddPictureCardFragment.OnFragmentInteractionListener,
@@ -47,10 +47,8 @@ public class MainActivity extends AppCompatActivity
         GoogleApiClient.OnConnectionFailedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
-    ProfileFragment profileFragment;
     PictureFragment pictureFragment;
     UploadFragment uploadFragment;
-    BucketListFragment bucketListFragment;
     CropPictureFragment cropPictureFragment;
 
 
@@ -63,13 +61,21 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //Floating Action Button
+        FloatingActionButton fabAdd = (FloatingActionButton) findViewById(R.id.fab_add);
+        fabAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
 
         FacebookSdk.sdkInitialize(this);
 
-        profileFragment = new ProfileFragment();
         pictureFragment = new PictureFragment();
         uploadFragment = new UploadFragment();
-        bucketListFragment = new BucketListFragment();
 
         //Check for previous login
         SharedPreferences myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
@@ -151,10 +157,15 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_profile_photos) {
-
+            Intent intent = new Intent(this, PicturesActivity.class);
+            this.startActivity(intent);
         } else if (id == R.id.nav_profile_interests) {
-
+            Intent intent = new Intent(this, InterestActivity.class);
+            this.startActivity(intent);
         } else if (id == R.id.nav_profile_bucket_list) {
+            Intent intent = new Intent(this, BucketListActivity.class);
+            this.startActivity(intent);
+        } else if (id == R.id.logout) {
 
         }
 
