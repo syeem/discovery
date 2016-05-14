@@ -1,5 +1,7 @@
 package travnet.discovery;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -73,7 +75,10 @@ public class CropPictureActivity extends AppCompatActivity {
                                     @Override
                                     public void onSuccess(Uri outputUri) {
                                         //Process cropped image
-
+                                        Intent returnIntent = new Intent();
+                                        returnIntent.putExtra("uri", outputUri);
+                                        setResult(Activity.RESULT_OK,returnIntent);
+                                        finish();
                                     }
 
                                     @Override
