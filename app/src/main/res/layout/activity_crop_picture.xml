@@ -1,0 +1,32 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="travnet.discovery.CropPictureFragment">
+
+    <com.isseiaoki.simplecropview.CropImageView
+        xmlns:custom="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/crop_image_view"
+        android:layout_weight="1"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        custom:scv_crop_mode="ratio_4_3"
+        custom:scv_handle_color="@color/colorAccent"
+        custom:scv_guide_color="@color/colorAccent"
+        custom:scv_frame_color="@color/colorAccent"
+        custom:scv_touch_padding="8dp"
+        custom:scv_handle_show_mode="not_show"
+        custom:scv_guide_show_mode="not_show"
+        custom:scv_frame_stroke_weight="1dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Done"
+        android:id="@+id/button_done_cropping"/>
+
+</RelativeLayout>
