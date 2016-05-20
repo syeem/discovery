@@ -20,6 +20,7 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -112,11 +113,18 @@ public class LoginFragment extends Fragment {
                             @Override
                             public void onCompleted(JSONObject object, GraphResponse response) {
 
-
                                 // Application code
                                 try {
+                                    String id = object.getString("id");
                                     String email = object.getString("email");
                                     String name = object.getString("name");
+                                    JSONObject locationObj = object.getJSONObject("location");
+                                    String location = locationObj.getString("name");
+                                    JSONObject hometownObj = object.getJSONObject("hometown");
+                                    String hometown = hometownObj.getString("name");
+                                    JSONObject picture = object.getJSONObject("picture");
+                                    String ppURL = picture.getJSONObject("data").getString("url");
+                                    Backend.getInstance().registerNewUser(id, name, email, location, hometown, ppURL);
                                 } catch (JSONException e) {
                                     Toast.makeText(getActivity().getApplicationContext(), R.string.error_permission_failed, Toast.LENGTH_LONG).show();
                                 }
@@ -124,7 +132,8 @@ public class LoginFragment extends Fragment {
                             }
                         });
                 Bundle parameters = new Bundle();
-                parameters.putString("fields", "email, name");
+                parameters.putString("fields", "id,email,name,hometown,location,picture.type(large)");
+        //        parameters.putString("fields", "email, name");
                 request.setParameters(parameters);
                 request.executeAsync();
 
