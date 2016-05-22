@@ -18,12 +18,15 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Arrays;
 
 
 /**
@@ -102,10 +105,16 @@ public class LoginFragment extends Fragment {
         loginButton.setReadPermissions("user_friends");
 
 
+
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 loginListener.onLoginSuccessful();
+
+                LoginManager.getInstance().logInWithReadPermissions(getActivity(), Arrays.asList("email"));
+                LoginManager.getInstance().logInWithReadPermissions(getActivity(), Arrays.asList("user_hometown"));
+                LoginManager.getInstance().logInWithReadPermissions(getActivity(), Arrays.asList("user_location"));
+
                 //Request user info
                 GraphRequest request = GraphRequest.newMeRequest(
                         loginResult.getAccessToken(),
@@ -124,9 +133,11 @@ public class LoginFragment extends Fragment {
                                     String hometown = hometownObj.getString("name");
                                     JSONObject picture = object.getJSONObject("picture");
                                     String ppURL = picture.getJSONObject("data").getString("url");
+
+
                                     Backend.getInstance().registerNewUser(id, name, email, location, hometown, ppURL);
                                 } catch (JSONException e) {
-                                    Toast.makeText(getActivity().getApplicationContext(), R.string.error_permission_failed, Toast.LENGTH_LONG).show();
+                                    e.printStackTrace();
                                 }
 
                             }
@@ -147,7 +158,7 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void onError(FacebookException e) {
-                Toast.makeText(getActivity().getApplicationContext(), R.string.error_login_failed, Toast.LENGTH_LONG).show();
+                e.printStackTrace();
             }
         });
 

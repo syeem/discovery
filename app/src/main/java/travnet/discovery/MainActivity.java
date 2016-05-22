@@ -21,6 +21,8 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.facebook.FacebookSdk;
@@ -40,13 +42,10 @@ public class MainActivity extends AppCompatActivity
         implements travnet.discovery.LoginFragment.OnFragmentInteractionListener, travnet.discovery.LoginFragment.OnLoginListener,
         PictureFragment.OnFragmentInteractionListener,
         ProfileInfoFragment.OnFragmentInteractionListener,
-        CropPictureFragment.OnFragmentInteractionListener,
-        AddPictureCardFragment.OnFragmentInteractionListener,
         GoogleApiClient.OnConnectionFailedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
     PictureFragment pictureFragment;
-    CropPictureFragment cropPictureFragment;
 
 
     @Override
@@ -57,6 +56,10 @@ public class MainActivity extends AppCompatActivity
         //Initialize navigation drawer
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        View headerLayout = navigationView.getHeaderView(0);
+        TextView ab = (TextView) headerLayout.findViewById(R.id.nav_title);
+        ab.setText("Hassan");
 
         //Floating action buttons
         FloatingActionButton fabAddBlog = (FloatingActionButton) findViewById(R.id.fab_add_blog);
@@ -83,6 +86,7 @@ public class MainActivity extends AppCompatActivity
 
 
         FacebookSdk.sdkInitialize(this);
+        Backend.getInstance().initialize(getApplicationContext());
 
         pictureFragment = new PictureFragment();
 
@@ -91,10 +95,20 @@ public class MainActivity extends AppCompatActivity
         boolean isLogged = myPrefs.getBoolean("isLogged", false);
         //boolean isLogged = false;
         if (isLogged) {
+            String userID = myPrefs.getString("user_id", "");
+            User.getInstance().setUserID(userID);
+
             //Set Picture Fragment
             pictureFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, pictureFragment).commit();
+
+            //Backend.getInstance().getUserInfo();
+            //BackendTasks.GetUserInfo userInfo = new BackendTasks.GetUserInfo();
+            BackendTasks backendTasks = new BackendTasks();
+            BackendTasks.GetUserInfo getUserInfo = new backendTasks.GetUserInfo();
+
+
         } else {
             //Set Login fragment
             travnet.discovery.LoginFragment loginFragment = new travnet.discovery.LoginFragment();
@@ -134,24 +148,17 @@ public class MainActivity extends AppCompatActivity
 
 
     public  void onPictureSelected(String imagePath) {
-        Bundle bundle = new Bundle();
-        bundle.putString("path", imagePath);
-        cropPictureFragment = new CropPictureFragment();
-        cropPictureFragment.setArguments(bundle);
-        replaceFragment(cropPictureFragment);
+
     }
 
     public void onUploadingBlog() {
+
 
     }
 
 
     public void onImageCropped(Uri uri) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable("uri", uri);
-        AddPictureCardFragment addPictureCardFragment = new AddPictureCardFragment();
-        addPictureCardFragment.setArguments(bundle);
-        replaceFragment(addPictureCardFragment);
+
     }
 
     @Override

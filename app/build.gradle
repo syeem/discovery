@@ -7,9 +7,14 @@ repositories {
     maven { url 'https://github.com/leonardocardoso/mvn-repo/raw/master/maven-deploy' }
 }
 
+
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
+
+    dataBinding {
+        enabled = true
+    }
 
     defaultConfig {
         applicationId "travnet.discovery"

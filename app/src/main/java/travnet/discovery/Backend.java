@@ -1,10 +1,12 @@
 package travnet.discovery;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Base64;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -43,6 +45,12 @@ public class Backend {
     }
 
 
+    enum Task
+    {
+        GET_USER_INFO,
+        REGISTER_NEW_USER
+    }
+
     public void registerNewUser(final String id, final String name, final String email, final String location, final String hometown, final String ppURL) {
 
         class RegisterNewUserTask extends AsyncTask<Void, Void, Void> {
@@ -54,17 +62,18 @@ public class Backend {
 
 
                 RequestQueue queue = Volley.newRequestQueue(context);
-                String url = "http://54.86.18.174/api/postBlog";
+                String url = "http://192.168.1.25:8080/api/registerUser";
                 String image = encodeImage(profilePic);
 
                 JSONObject user = new JSONObject();
                 try {
-                    user.put("id", id);
                     user.put("email", email);
                     user.put("name", name);
-                    user.put("location", location);
-                    user.put("hometown", hometown);
-                    user.put("profile_picture", image);
+                    user.put("living_in", location);
+                    user.put("home", hometown);
+                    user.put("facebook_id", id);
+                    user.put("date_of_birth", "25");
+                    user.put("profile_pic", ppURL);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -75,6 +84,67 @@ public class Backend {
 
                             @Override
                             public void onResponse(JSONObject response) {
+                                //Stub
+                                String userID = null;
+                                try {
+                                    userID = response.getString("user_id");
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                User.getInstance().setUserID(userID);
+                                SharedPreferences myPrefs = context.getSharedPreferences("login", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor prefsEditor = myPrefs.edit();
+                                prefsEditor.putString("user_id", User.getInstance().getUserID());
+                                prefsEditor.commit();
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                            }
+                        });
+
+
+                queue.add(jsObjRequest);
+
+                return null;
+            }
+
+            protected Void onPostExecute() {
+                return null;
+            }
+        }
+
+        new RegisterNewUserTask().execute();
+
+    }
+
+
+    public void getUserInfo() {
+
+        class getUserInfoTask extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                RequestQueue queue = Volley.newRequestQueue(context);
+                String url = "http://192.168.1.25:8080/api/getUserInfo";
+
+                JSONObject userID = new JSONObject();
+                try {
+                    userID.put("user_id", User.getInstance().getUserID());
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                        (Request.Method.POST, url, userID, new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                Log.v("xyz", "jdhf");
 
                             }
                         }, new Response.ErrorListener() {
@@ -86,7 +156,7 @@ public class Backend {
 
                 queue.add(jsObjRequest);
 
-            return null;
+                return null;
             }
 
             protected void onPostExecute() {
@@ -96,9 +166,12 @@ public class Backend {
 
         }
 
-        new RegisterNewUserTask().execute();
+        new getUserInfoTask().execute();
 
     }
+
+
+
 
 
     public String encodeImage(Bitmap bitmap){
@@ -108,9 +181,6 @@ public class Backend {
         String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
         return encodedImage;
     }
-
-
-
 
     public static Bitmap getBitmapFromURL(String src) {
         try {
