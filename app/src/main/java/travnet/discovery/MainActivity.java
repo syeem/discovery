@@ -94,11 +94,11 @@ public class MainActivity extends AppCompatActivity
 
         //Check for previous login
         SharedPreferences myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
-        //boolean isLogged = myPrefs.getBoolean("isLogged", false);
-        boolean isLogged = false;
+        boolean isLogged = myPrefs.getBoolean("isLogged", false);
+        //boolean isLogged = false;
         if (isLogged) {
             String userID = myPrefs.getString("user_id", "");
-            User.getInstance().setUserID(userID);
+            //User.getInstance().setUserID(userID);
 
             //Set Picture Fragment
             pictureFragment.setArguments(getIntent().getExtras());
@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity
             Backend.getInstance().getUserInfo(Backend.getInstance().new GetUserInfoListener() {
                 @Override
                 public void onUserInfoFetched() {
+                    updateNavDrawerHeader();
                     Toast.makeText(getApplicationContext(), "User info fetched", Toast.LENGTH_LONG).show();
                 }
             });

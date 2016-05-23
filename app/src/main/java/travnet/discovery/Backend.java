@@ -168,7 +168,8 @@ public class Backend {
                 return null;
             }
 
-            protected void onPostExecute() {
+            @Override
+            protected void onPostExecute(Void v) {
                 listener.onUserInfoFetched();
             }
 
