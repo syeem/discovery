@@ -2,6 +2,8 @@ package travnet.discovery;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -26,6 +28,10 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Arrays;
 
 
@@ -134,6 +140,7 @@ public class LoginFragment extends Fragment {
                                     JSONObject picture = object.getJSONObject("picture");
                                     String ppURL = picture.getJSONObject("data").getString("url");
 
+                                    User.getInstance().updateUser("-1", name, email, location, hometown, null);
 
                                     Backend.getInstance().registerNewUser(id, name, email, location, hometown, ppURL);
                                 } catch (JSONException e) {
@@ -219,5 +226,7 @@ public class LoginFragment extends Fragment {
     public interface OnLoginListener {
         void onLoginSuccessful();
     }
+
+
 
 }

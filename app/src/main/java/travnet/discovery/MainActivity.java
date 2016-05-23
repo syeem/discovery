@@ -3,6 +3,7 @@ package travnet.discovery;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.net.Uri;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -20,6 +21,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,6 +49,8 @@ public class MainActivity extends AppCompatActivity
 
     PictureFragment pictureFragment;
 
+    View navDrawerheader;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +61,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        View headerLayout = navigationView.getHeaderView(0);
-        TextView ab = (TextView) headerLayout.findViewById(R.id.nav_title);
-        ab.setText("Hassan");
+        navDrawerheader = navigationView.getHeaderView(0);
 
         //Floating action buttons
         FloatingActionButton fabAddBlog = (FloatingActionButton) findViewById(R.id.fab_add_blog);
@@ -92,8 +94,8 @@ public class MainActivity extends AppCompatActivity
 
         //Check for previous login
         SharedPreferences myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
-        boolean isLogged = myPrefs.getBoolean("isLogged", false);
-        //boolean isLogged = false;
+        //boolean isLogged = myPrefs.getBoolean("isLogged", false);
+        boolean isLogged = false;
         if (isLogged) {
             String userID = myPrefs.getString("user_id", "");
             User.getInstance().setUserID(userID);
@@ -103,10 +105,12 @@ public class MainActivity extends AppCompatActivity
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, pictureFragment).commit();
 
-            //Backend.getInstance().getUserInfo();
-            //BackendTasks.GetUserInfo userInfo = new BackendTasks.GetUserInfo();
-            BackendTasks backendTasks = new BackendTasks();
-            BackendTasks.GetUserInfo getUserInfo = new backendTasks.GetUserInfo();
+            Backend.getInstance().getUserInfo(Backend.getInstance().new GetUserInfoListener() {
+                @Override
+                public void onUserInfoFetched() {
+                    Toast.makeText(getApplicationContext(), "User info fetched", Toast.LENGTH_LONG).show();
+                }
+            });
 
 
         } else {
@@ -139,6 +143,7 @@ public class MainActivity extends AppCompatActivity
         //Replace Login Fragment with Picture Fragment
         replaceFragment(pictureFragment);
     }
+
 
     public void replaceFragment (Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -207,5 +212,14 @@ public class MainActivity extends AppCompatActivity
         this.startActivity(intent);
     }
 
+
+    void updateNavDrawerHeader() {
+        ImageView profilePic = (ImageView) navDrawerheader.findViewById(R.id.profile_pic);
+        profilePic.setImageBitmap(User.getInstance().getProfilePic());
+        TextView profileName = (TextView) navDrawerheader.findViewById(R.id.profile_name);
+        profileName.setText(User.getInstance().getName());
+        TextView profileHome = (TextView) navDrawerheader.findViewById(R.id.profile_home);
+        profileHome.setText(User.getInstance().getHometown());
+    }
 
 }

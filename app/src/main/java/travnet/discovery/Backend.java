@@ -59,10 +59,11 @@ public class Backend {
             protected Void doInBackground(Void... params) {
                 //Bitmap profilePic = ImageLoader.getInstance().loadImageSync(ppURL);
                 Bitmap profilePic = getBitmapFromURL(ppURL);
+                User.getInstance().setProfilePic(profilePic);
 
 
                 RequestQueue queue = Volley.newRequestQueue(context);
-                String url = "http://192.168.1.25:8080/api/registerUser";
+                String url = "http://54.86.18.174/api/registerUser";
                 String image = encodeImage(profilePic);
 
                 JSONObject user = new JSONObject();
@@ -121,7 +122,15 @@ public class Backend {
     }
 
 
-    public void getUserInfo() {
+    public abstract  class GetUserInfoListener {
+        public GetUserInfoListener() {
+        }
+
+        public abstract void onUserInfoFetched();
+    }
+
+
+    public void getUserInfo(final GetUserInfoListener listener) {
 
         class getUserInfoTask extends AsyncTask<Void, Void, Void> {
 
@@ -129,7 +138,7 @@ public class Backend {
             protected Void doInBackground(Void... params) {
 
                 RequestQueue queue = Volley.newRequestQueue(context);
-                String url = "http://192.168.1.25:8080/api/getUserInfo";
+                String url = "http://54.86.18.174/api/getUserInfo";
 
                 JSONObject userID = new JSONObject();
                 try {
@@ -160,6 +169,7 @@ public class Backend {
             }
 
             protected void onPostExecute() {
+                listener.onUserInfoFetched();
             }
 
 
