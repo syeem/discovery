@@ -1,80 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="350dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
 
     <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/description"
+        android:gravity="center"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000">
+
+        <android.support.percent.PercentRelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/description"
-            android:gravity="center"/>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:background="#000000">
-
+            android:id = "@+id/image_holder">
             <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/image" />
+                app:layout_widthPercent="100%"
+                app:layout_aspectRatio="100%"
+                android:id = "@+id/image" />
+        </android.support.percent.PercentRelativeLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="25sp"
-                android:layout_alignBottom="@+id/image"
-                android:layout_centerHorizontal="true"
-                android:paddingBottom="10dp"
-                android:id="@+id/location" />
-
-
-            <Button
-                android:id="@+id/like_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/image"
-                android:layout_alignRight="@+id/image"
-                android:alpha="0.5" />
-
-            <Button
-                android:id="@+id/add_to_bl_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/image"
-                android:layout_alignRight="@+id/image"
-                android:alpha="0.5" />
-
-        </RelativeLayout>
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/likes" />
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="0.5"
-                android:layout_height="wrap_content"
-                android:id="@+id/activity" />
+            android:textSize="25sp"
+            android:layout_alignBottom="@+id/image_holder"
+            android:layout_centerHorizontal="true"
+            android:paddingBottom="10dp"
+            android:id="@+id/location" />
 
 
-        </LinearLayout>
-
-        <include
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/like_button"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/uploader"
-            layout="@layout/bar_uploader"/>
+            android:layout_alignBottom="@+id/image_holder"
+            android:layout_alignRight="@+id/image_holder"
+            android:alpha="0.5" />
 
+        <Button
+            android:id="@+id/add_to_bl_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/image_holder"
+            android:layout_alignRight="@+id/image_holder"
+            android:alpha="0.5" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/likes" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="wrap_content"
+            android:id="@+id/activity" />
 
 
     </LinearLayout>
+
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/uploader"
+        layout="@layout/bar_uploader"/>
+
+
+
+</LinearLayout>
