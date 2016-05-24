@@ -153,6 +153,7 @@ public class Backend {
 
                             @Override
                             public void onResponse(JSONObject response) {
+                                listener.onUserInfoFetched();
                                 Log.v("xyz", "jdhf");
 
                             }
@@ -170,7 +171,7 @@ public class Backend {
 
             @Override
             protected void onPostExecute(Void v) {
-                listener.onUserInfoFetched();
+
             }
 
 

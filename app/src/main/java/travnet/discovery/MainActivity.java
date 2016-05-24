@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity
         NavigationView.OnNavigationItemSelectedListener {
 
     PictureFragment pictureFragment;
-
     View navDrawerheader;
 
 
@@ -57,10 +56,64 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        FacebookSdk.sdkInitialize(this);
+        Backend.getInstance().initialize(getApplicationContext());
+        pictureFragment = new PictureFragment();
+
+
+        //Check for previous login
+        SharedPreferences myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
+        boolean isLogged = myPrefs.getBoolean("isLogged", false);
+        //boolean isLogged = false;
+        if (isLogged) {
+            String userID = myPrefs.getString("user_id", "");
+            User.getInstance().setUserID(userID);
+
+            //Set Picture Fragment
+            pictureFragment.setArguments(getIntent().getExtras());
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, pictureFragment).commit();
+
+            setupHomeScreen();
+
+        } else {
+            //Set Login fragment
+            travnet.discovery.LoginFragment loginFragment = new travnet.discovery.LoginFragment();
+            loginFragment.setArguments(getIntent().getExtras());
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, loginFragment).commit();
+        }
+
+    }
+
+
+
+    public void onFragmentInteraction(Uri uri){
+        //you can leave it empty
+    }
+
+    public void onListViewScrollStart(){
+    }
+
+    public void onListViewScrollStop(){
+    }
+
+    public void onLoginSuccessful(){
+        //Save login
+        SharedPreferences myPrefs = MainActivity.this.getSharedPreferences("login", MODE_PRIVATE);
+        SharedPreferences.Editor prefsEditor = myPrefs.edit();
+        prefsEditor.putBoolean("isLogged", true);
+        prefsEditor.commit();
+
+        //Replace Login Fragment with Picture Fragment
+        replaceFragment(pictureFragment);
+        setupHomeScreen();
+    }
+
+    void setupHomeScreen() {
         //Initialize navigation drawer
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         navDrawerheader = navigationView.getHeaderView(0);
 
         //Floating action buttons
@@ -87,63 +140,18 @@ public class MainActivity extends AppCompatActivity
         });
 
 
-        FacebookSdk.sdkInitialize(this);
-        Backend.getInstance().initialize(getApplicationContext());
+        Backend.getInstance().getUserInfo(Backend.getInstance().new GetUserInfoListener() {
+            @Override
+            public void onUserInfoFetched() {
+                updateNavDrawerHeader();
+                Toast.makeText(getApplicationContext(), "User info fetched", Toast.LENGTH_LONG).show();
+            }
+        });
 
-        pictureFragment = new PictureFragment();
-
-        //Check for previous login
-        SharedPreferences myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
-        boolean isLogged = myPrefs.getBoolean("isLogged", false);
-        //boolean isLogged = false;
-        if (isLogged) {
-            String userID = myPrefs.getString("user_id", "");
-            //User.getInstance().setUserID(userID);
-
-            //Set Picture Fragment
-            pictureFragment.setArguments(getIntent().getExtras());
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, pictureFragment).commit();
-
-            Backend.getInstance().getUserInfo(Backend.getInstance().new GetUserInfoListener() {
-                @Override
-                public void onUserInfoFetched() {
-                    updateNavDrawerHeader();
-                    Toast.makeText(getApplicationContext(), "User info fetched", Toast.LENGTH_LONG).show();
-                }
-            });
-
-
-        } else {
-            //Set Login fragment
-            travnet.discovery.LoginFragment loginFragment = new travnet.discovery.LoginFragment();
-            loginFragment.setArguments(getIntent().getExtras());
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, loginFragment).commit();
-        }
 
     }
 
-    public void onFragmentInteraction(Uri uri){
-        //you can leave it empty
-    }
 
-    public void onListViewScrollStart(){
-    }
-
-    public void onListViewScrollStop(){
-    }
-
-    public void onLoginSuccessful(){
-        //Save login
-        SharedPreferences myPrefs = MainActivity.this.getSharedPreferences("login", MODE_PRIVATE);
-        SharedPreferences.Editor prefsEditor = myPrefs.edit();
-        prefsEditor.putBoolean("isLogged", true);
-        prefsEditor.commit();
-
-        //Replace Login Fragment with Picture Fragment
-        replaceFragment(pictureFragment);
-    }
 
 
     public void replaceFragment (Fragment fragment) {
@@ -187,8 +195,18 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, BucketListActivity.class);
             this.startActivity(intent);
         } else if (id == R.id.logout) {
-
+            LoginManager.getInstance().logOut();
+            //Clear SharedPreferences
+            SharedPreferences myPrefs = MainActivity.this.getSharedPreferences("login", MODE_PRIVATE);
+            SharedPreferences.Editor prefsEditor = myPrefs.edit();
+            prefsEditor.putBoolean("isLogged", false);
+            prefsEditor.commit();
+            //Restart activity
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
         }
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
