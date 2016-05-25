@@ -2,6 +2,8 @@ package travnet.discovery;
 
 import android.graphics.Bitmap;
 
+import java.util.List;
+
 /**
  * Created by Sunny on 21/5/2016.
  */
@@ -15,6 +17,7 @@ public class User {
     private String location;
     private Bitmap profilePic;
 
+    private List<String> interests;
 
     public static User getInstance() {
         return ourInstance;
@@ -79,5 +82,13 @@ public class User {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public List<String> getInterests() {
+        return interests;
+    }
+
+    public void setInterests(List<String> interests) {
+        this.interests = interests;
     }
 }

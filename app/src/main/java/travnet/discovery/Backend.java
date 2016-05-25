@@ -23,8 +23,10 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 
 /**
  * Created by root on 5/20/16.
@@ -45,11 +47,6 @@ public class Backend {
     }
 
 
-    enum Task
-    {
-        GET_USER_INFO,
-        REGISTER_NEW_USER
-    }
 
     public void registerNewUser(final String id, final String name, final String email, final String location, final String hometown, final String ppURL) {
 
@@ -185,8 +182,70 @@ public class Backend {
 
 
 
+    public abstract  class GetUserInterestsListener {
+        public GetUserInterestsListener() {
+        }
 
-    public String encodeImage(Bitmap bitmap){
+        public abstract void onUserInterestsFetched();
+    }
+
+
+    public void getUserIntersets(final GetUserInterestsListener listener) {
+        class getUserInfoTask extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                RequestQueue queue = Volley.newRequestQueue(context);
+                String url = "http://54.86.18.174/api/getUserInterests";
+
+                JSONObject userID = new JSONObject();
+                try {
+                    userID.put("user_id", User.getInstance().getUserID());
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                        (Request.Method.POST, url, userID, new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject response) {
+
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                            }
+                        });
+
+                queue.add(jsObjRequest);
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+                //Stub
+                User.getInstance().setInterests(Arrays.asList("Surfing", "Diving", "Biking", "Yoga", "Kite Surfing", "Sightseeing"));
+                listener.onUserInterestsFetched();
+
+            }
+
+
+
+        }
+
+        new getUserInfoTask().execute();
+
+    }
+
+
+
+
+        public String encodeImage(Bitmap bitmap){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] imageBytes = baos.toByteArray();
