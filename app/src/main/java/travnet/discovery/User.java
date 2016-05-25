@@ -2,6 +2,7 @@ package travnet.discovery;
 
 import android.graphics.Bitmap;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ public class User {
     private String location;
     private Bitmap profilePic;
 
-    private List<String> interests;
+    private List<String> interests = new ArrayList<String>();
 
     public static User getInstance() {
         return ourInstance;
@@ -85,10 +86,13 @@ public class User {
     }
 
     public List<String> getInterests() {
-        return interests;
+        List<String> temp = new ArrayList<String>(this.interests);
+        return temp;
     }
 
     public void setInterests(List<String> interests) {
-        this.interests = interests;
+        for (int i = 0; i < interests.size(); i++) {
+            this.interests.add(interests.get(i));
+        }
     }
 }

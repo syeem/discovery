@@ -18,6 +18,8 @@ import com.baoyz.swipemenulistview.SwipeMenuCreator;
 import com.baoyz.swipemenulistview.SwipeMenuItem;
 import com.baoyz.swipemenulistview.SwipeMenuListView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class InterestActivity extends AppCompatActivity {
@@ -33,8 +35,11 @@ public class InterestActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        userInterests = new ArrayList<String>();
+
         listInterests = (SwipeMenuListView) findViewById(R.id.list_interests);
         initializeLiztView();
+
 
         Backend.getInstance().getUserIntersets(Backend.getInstance().new GetUserInterestsListener() {
             @Override
@@ -69,9 +74,8 @@ public class InterestActivity extends AppCompatActivity {
             public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
                 switch (index) {
                     case 0:
-                        userInterests.remove(position-1);
+                        userInterests.remove(position);
                         adapter.notifyDataSetChanged();
-                        Toast.makeText(getApplicationContext(), "Delete", Toast.LENGTH_LONG).show();
                         break;
                 }
                 return false;
