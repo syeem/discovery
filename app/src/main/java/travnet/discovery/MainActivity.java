@@ -2,52 +2,34 @@ package travnet.discovery;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.media.Image;
 import android.net.Uri;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
 import com.facebook.FacebookSdk;
-import com.facebook.AccessToken;
-import com.facebook.FacebookSdk;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
 import com.facebook.login.*;
-import com.facebook.login.LoginFragment;
 import com.github.clans.fab.FloatingActionButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.places.Places;
 
 public class MainActivity extends AppCompatActivity
-        implements travnet.discovery.LoginFragment.OnFragmentInteractionListener, travnet.discovery.LoginFragment.OnLoginListener,
-        PictureFragment.OnFragmentInteractionListener,
-        ProfileInfoFragment.OnFragmentInteractionListener,
+        implements SignInFragment.OnFragmentInteractionListener, SignInFragment.OnLoginListener,
+        HomeFragment.OnFragmentInteractionListener,
         GoogleApiClient.OnConnectionFailedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
-    PictureFragment pictureFragment;
+    HomeFragment homeFragment;
     View navDrawerheader;
 
 
@@ -58,7 +40,7 @@ public class MainActivity extends AppCompatActivity
 
         FacebookSdk.sdkInitialize(this);
         Backend.getInstance().initialize(getApplicationContext());
-        pictureFragment = new PictureFragment();
+        homeFragment = new HomeFragment();
 
 
         //Check for previous login
@@ -70,18 +52,18 @@ public class MainActivity extends AppCompatActivity
             User.getInstance().setUserID(userID);
 
             //Set Picture Fragment
-            pictureFragment.setArguments(getIntent().getExtras());
+            homeFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, pictureFragment).commit();
+                    .add(R.id.fragment_container, homeFragment).commit();
 
             setupHomeScreen();
 
         } else {
             //Set Login fragment
-            travnet.discovery.LoginFragment loginFragment = new travnet.discovery.LoginFragment();
-            loginFragment.setArguments(getIntent().getExtras());
+            SignInFragment signInFragment = new SignInFragment();
+            signInFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, loginFragment).commit();
+                    .add(R.id.fragment_container, signInFragment).commit();
         }
 
     }
@@ -106,7 +88,7 @@ public class MainActivity extends AppCompatActivity
         prefsEditor.commit();
 
         //Replace Login Fragment with Picture Fragment
-        replaceFragment(pictureFragment);
+        replaceFragment(homeFragment);
         setupHomeScreen();
     }
 

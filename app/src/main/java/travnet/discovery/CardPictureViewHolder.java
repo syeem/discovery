@@ -34,7 +34,7 @@ public class CardPictureViewHolder extends RecyclerView.ViewHolder {
 
 
 
-    public void addLikeCallback(final DataPictureCard dataPictureCard, final PictureFragment.ImageAdapter imageAdapter, final int position) {
+    public void addLikeCallback(final DataPictureCard dataPictureCard, final HomeFragment.ImageAdapter imageAdapter, final int position) {
         like_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

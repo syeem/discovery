@@ -171,7 +171,7 @@ public class Backend {
 
             @Override
             protected void onPostExecute(Void v) {
-
+                listener.onUserInfoFetched();
             }
 
 

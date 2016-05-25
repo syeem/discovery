@@ -2,48 +2,37 @@ package travnet.discovery;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Arrays;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link LoginFragment.OnFragmentInteractionListener} interface
+ * {@link SignInFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link LoginFragment#newInstance} factory method to
+ * Use the {@link SignInFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class LoginFragment extends Fragment {
+public class SignInFragment extends Fragment {
 
     private View myFragmentView;
     private CallbackManager callbackManager;
@@ -61,7 +50,7 @@ public class LoginFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private OnLoginListener loginListener;
 
-    public LoginFragment() {
+    public SignInFragment() {
         // Required empty public constructor
     }
 
@@ -71,11 +60,11 @@ public class LoginFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment LoginFragment.
+     * @return A new instance of fragment SignInFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static LoginFragment newInstance(String param1, String param2) {
-        LoginFragment fragment = new LoginFragment();
+    public static SignInFragment newInstance(String param1, String param2) {
+        SignInFragment fragment = new SignInFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -150,7 +139,7 @@ public class LoginFragment extends Fragment {
                             }
                         });
                 Bundle parameters = new Bundle();
-                parameters.putString("fields", "id,email,name,hometown,location,picture.type(large)");
+                parameters.putString("fields", "id,email,name,hometown,location,picture.width(300).height(300)");
         //        parameters.putString("fields", "email, name");
                 request.setParameters(parameters);
                 request.executeAsync();
