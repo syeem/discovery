@@ -56,6 +56,10 @@
         <activity
             android:name=".CropPictureActivity"
             android:label="@string/title_activity_crop_picture"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AddInterestActivity"
+            android:label="@string/title_activity_add_interest"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
