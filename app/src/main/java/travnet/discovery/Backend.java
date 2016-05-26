@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -189,9 +190,8 @@ public class Backend {
         public abstract void onUserInterestsFetched();
     }
 
-
     public void getUserIntersets(final GetUserInterestsListener listener) {
-        class getUserInfoTask extends AsyncTask<Void, Void, Void> {
+        class getUserInterestsTask extends AsyncTask<Void, Void, Void> {
 
             @Override
             protected Void doInBackground(Void... params) {
@@ -238,14 +238,86 @@ public class Backend {
 
         }
 
-        new getUserInfoTask().execute();
+        new getUserInterestsTask().execute();
 
     }
 
 
 
 
-        public String encodeImage(Bitmap bitmap){
+    public abstract  class GetUserPicturesListener {
+        public GetUserPicturesListener() {
+        }
+
+        public abstract void onUserPicturesFetched(ArrayList<DataPictureCard> userPictures);
+    }
+
+    public void GetUserPictures(final GetUserPicturesListener listener) {
+        class getUserPicturesTask extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                RequestQueue queue = Volley.newRequestQueue(context);
+                String url = "http://54.86.18.174/api/getUserPictures";
+
+                JSONObject userID = new JSONObject();
+                try {
+                    userID.put("user_id", User.getInstance().getUserID());
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                        (Request.Method.POST, url, userID, new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject response) {
+
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                            }
+                        });
+
+                queue.add(jsObjRequest);
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+                //Stub
+                String imageLink = "http://www.planwallpaper.com/static/images/4-Nature-Wallpapers-2014-1_ukaavUI.jpg";
+
+                ArrayList userPictures = new ArrayList<DataPictureCard>();
+                DataPictureCard data1 = new DataPictureCard("A", imageLink, 10, "D", "E", "F", "G");
+                DataPictureCard data2 = new DataPictureCard("A", imageLink, 10, "D", "E", "F", "G");
+                DataPictureCard data3 = new DataPictureCard("A", imageLink, 10, "D", "E", "F", "G");
+                DataPictureCard data4 = new DataPictureCard("A", imageLink, 10, "D", "E", "F", "G");
+                userPictures.add(data1);
+                userPictures.add(data2);
+                userPictures.add(data3);
+                userPictures.add(data4);
+                listener.onUserPicturesFetched(userPictures);
+
+            }
+
+
+
+        }
+
+        new getUserPicturesTask().execute();
+
+    }
+
+
+
+
+    public String encodeImage(Bitmap bitmap){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] imageBytes = baos.toByteArray();
