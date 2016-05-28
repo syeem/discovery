@@ -104,9 +104,12 @@ public class InterestActivity extends AppCompatActivity {
 
 
     private void populateListView() {
-        adapter = new ArrayAdapter<String>(this, R.layout.card_interest, userInterests);
+        adapter = new ArrayAdapter<String>(this, R.layout.card_interest, R.id.interest_name, userInterests);
         listInterests.setAdapter(adapter);
     }
+
+
+
 
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

@@ -7,10 +7,17 @@
     android:orientation="horizontal">
 
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:gravity="center_vertical"
+        android:layout_width="0dp"
+        android:layout_weight="0.8"
+        android:layout_height="50dp"
         android:minHeight="?android:attr/listPreferredItemHeight"
         android:id="@+id/interest_name"/>
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:id="@+id/interest_select"/>
+
 
 </LinearLayout>

@@ -229,7 +229,7 @@ public class Backend {
             @Override
             protected void onPostExecute(Void v) {
                 //Stub
-                User.getInstance().setInterests(Arrays.asList("Surfing", "Diving", "Biking", "Yoga", "Kite Surfing", "Sightseeing"));
+                User.getInstance().setInterests(Arrays.asList("Surfing"));
                 listener.onUserInterestsFetched();
 
             }
