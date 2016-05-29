@@ -22,6 +22,7 @@ import com.baoyz.swipemenulistview.SwipeMenuCreator;
 import com.baoyz.swipemenulistview.SwipeMenuItem;
 import com.baoyz.swipemenulistview.SwipeMenuListView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,6 +68,7 @@ public class InterestActivity extends AppCompatActivity {
 
     private void startAddInterestActivity() {
         Intent intent = new Intent(this, AddInterestActivity.class);
+        intent.putExtra("interests", (Serializable) userInterests);
         this.startActivityForResult(intent, REQUEST_ADD_INTEREST);
     }
 

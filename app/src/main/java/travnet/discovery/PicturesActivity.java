@@ -55,7 +55,7 @@ public class PicturesActivity extends AppCompatActivity {
 
         RecyclerView gridUserPictures = (RecyclerView) findViewById(R.id.grid_user_pictures);
 
-        Backend.getInstance().GetUserPictures(Backend.getInstance().new GetUserPicturesListener() {
+        Backend.getInstance().getUserPictures(Backend.getInstance().new GetUserPicturesListener() {
             @Override
             public void onUserPicturesFetched(ArrayList<DataPictureCard> userPictures) {
                addUserPictures(userPictures);

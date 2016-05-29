@@ -18,6 +18,8 @@ public class User {
     private String location;
     private Bitmap profilePic;
 
+    private int userState;
+
     private List<String> interests = new ArrayList<String>();
 
     public static User getInstance() {
@@ -25,6 +27,7 @@ public class User {
     }
 
     private User() {
+        userState = 0;
     }
 
 
@@ -94,5 +97,13 @@ public class User {
         for (int i = 0; i < interests.size(); i++) {
             this.interests.add(interests.get(i));
         }
+    }
+
+    public int getUserState() {
+        return userState;
+    }
+
+    public void setUserState(int userState) {
+        this.userState = userState;
     }
 }

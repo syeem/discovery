@@ -104,7 +104,6 @@ public class SignInFragment extends Fragment {
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                loginListener.onLoginSuccessful();
 
                 LoginManager.getInstance().logInWithReadPermissions(getActivity(), Arrays.asList("email"));
                 LoginManager.getInstance().logInWithReadPermissions(getActivity(), Arrays.asList("user_hometown"));
@@ -131,7 +130,13 @@ public class SignInFragment extends Fragment {
 
                                     User.getInstance().updateUser("-1", name, email, location, hometown, null);
 
-                                    Backend.getInstance().registerNewUser(id, name, email, location, hometown, ppURL);
+                                    Backend.getInstance().registerNewUser(id, name, email, location, hometown, ppURL, Backend.getInstance().new RegisterNewUserListener() {
+                                        @Override
+                                        public void registerNewUserCompleted() {
+                                            loginListener.onLoginSuccessful();
+                                        }
+                                    });
+
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }

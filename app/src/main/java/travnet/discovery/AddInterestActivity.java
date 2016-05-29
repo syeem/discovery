@@ -18,6 +18,7 @@ import android.widget.CheckBox;
 import android.widget.Checkable;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -33,6 +34,7 @@ public class AddInterestActivity extends AppCompatActivity {
     AddInterestItemAdapter addInterestItemAdapter;
     RecyclerView listInterests;
 
+    int minInterestRequired;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +47,31 @@ public class AddInterestActivity extends AppCompatActivity {
         selectedIntersets = new ArrayList<>();
         addInterestItemAdapter = new AddInterestItemAdapter(this);
 
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            minInterestRequired = extras.getInt("minimum_required", 0);
+            if (extras.containsKey("interests")) {
+                ArrayList<String> userInterests = (ArrayList <String>) extras.getSerializable("interests");
+                selectedIntersets.addAll(userInterests);
+            }
+
+        } else {
+            minInterestRequired = 0;
+        }
+
+
+        Backend.getInstance().getIntersets(Backend.getInstance().new GetInterestsListener() {
+            @Override
+            public void onInterestsFetched(ArrayList<String> listInterests) {
+                interests.addAll(listInterests);
+                addInterestItemAdapter.notifyDataSetChanged();
+            }
+        });
+
+
+
         //Stub
-        interests.addAll(Arrays.asList("Surfing", "Diving", "Biking", "Yoga", "Kite Surfing", "Sightseeing"));
+        //interests.addAll(Arrays.asList("Surfing", "Diving", "Biking", "Yoga", "Kite Surfing", "Sightseeing"));
 
 
         listInterests = (RecyclerView) findViewById(R.id.list_interests);
@@ -106,7 +131,9 @@ public class AddInterestActivity extends AppCompatActivity {
 
             CardAddInterestItemViewHolder cardBucketListItemViewHolder = (CardAddInterestItemViewHolder) holder;
             cardBucketListItemViewHolder.interestName.setText(interests.get(position));
-
+            if (selectedIntersets.contains(interests.get(position))) {
+                cardBucketListItemViewHolder.isSelected.setChecked(true);
+            }
 
         }
     }
@@ -140,10 +167,18 @@ public class AddInterestActivity extends AppCompatActivity {
             }
         }
 
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra("interests", selectedIntersets);
-        setResult(Activity.RESULT_OK,returnIntent);
-        finish();
+        if (selectedIntersets.size() >= minInterestRequired) {
+            User.getInstance().setInterests(selectedIntersets);
+
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("interests", selectedIntersets);
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        } else {
+            String msg = "Please select " + minInterestRequired + "interests";
+            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+        }
+
     }
 
 }

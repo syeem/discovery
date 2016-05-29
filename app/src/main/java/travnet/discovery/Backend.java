@@ -17,6 +17,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,6 +37,9 @@ public class Backend {
     private static Backend ourInstance = new Backend();
     private Context context;
 
+    //private String baseUrl = "http://192.168.1.25:8080/api/";
+    private String baseUrl = "http://54.86.18.174/api/";
+
     public static Backend getInstance() {
         return ourInstance;
     }
@@ -48,8 +52,14 @@ public class Backend {
     }
 
 
+    public abstract  class RegisterNewUserListener {
+        public RegisterNewUserListener() {
+        }
 
-    public void registerNewUser(final String id, final String name, final String email, final String location, final String hometown, final String ppURL) {
+        public abstract void registerNewUserCompleted();
+    }
+
+    public void registerNewUser(final String id, final String name, final String email, final String location, final String hometown, final String ppURL, final RegisterNewUserListener listener) {
 
         class RegisterNewUserTask extends AsyncTask<Void, Void, Void> {
 
@@ -61,7 +71,7 @@ public class Backend {
 
 
                 RequestQueue queue = Volley.newRequestQueue(context);
-                String url = "http://54.86.18.174/api/registerUser";
+                String url = baseUrl + "registerUser";
                 String image = encodeImage(profilePic);
 
                 JSONObject user = new JSONObject();
@@ -83,7 +93,6 @@ public class Backend {
 
                             @Override
                             public void onResponse(JSONObject response) {
-                                //Stub
                                 String userID = null;
                                 try {
                                     userID = response.getString("user_id");
@@ -96,6 +105,7 @@ public class Backend {
                                 SharedPreferences.Editor prefsEditor = myPrefs.edit();
                                 prefsEditor.putString("user_id", User.getInstance().getUserID());
                                 prefsEditor.commit();
+                                listener.registerNewUserCompleted();
                             }
                         }, new Response.ErrorListener() {
 
@@ -136,7 +146,7 @@ public class Backend {
             protected Void doInBackground(Void... params) {
 
                 RequestQueue queue = Volley.newRequestQueue(context);
-                String url = "http://54.86.18.174/api/getUserInfo";
+                String url = baseUrl + "getUserInfo";
 
                 JSONObject userID = new JSONObject();
                 try {
@@ -152,7 +162,6 @@ public class Backend {
                             @Override
                             public void onResponse(JSONObject response) {
                                 listener.onUserInfoFetched();
-                                Log.v("xyz", "jdhf");
 
                             }
                         }, new Response.ErrorListener() {
@@ -169,7 +178,6 @@ public class Backend {
 
             @Override
             protected void onPostExecute(Void v) {
-                listener.onUserInfoFetched();
             }
 
 
@@ -197,7 +205,7 @@ public class Backend {
             protected Void doInBackground(Void... params) {
 
                 RequestQueue queue = Volley.newRequestQueue(context);
-                String url = "http://54.86.18.174/api/getUserInterests";
+                String url = baseUrl + "getUserInterests";
 
                 JSONObject userID = new JSONObject();
                 try {
@@ -229,7 +237,7 @@ public class Backend {
             @Override
             protected void onPostExecute(Void v) {
                 //Stub
-                User.getInstance().setInterests(Arrays.asList("Surfing"));
+                //User.getInstance().setInterests(Arrays.asList("Surfing"));
                 listener.onUserInterestsFetched();
 
             }
@@ -252,14 +260,14 @@ public class Backend {
         public abstract void onUserPicturesFetched(ArrayList<DataPictureCard> userPictures);
     }
 
-    public void GetUserPictures(final GetUserPicturesListener listener) {
+    public void getUserPictures(final GetUserPicturesListener listener) {
         class getUserPicturesTask extends AsyncTask<Void, Void, Void> {
 
             @Override
             protected Void doInBackground(Void... params) {
 
                 RequestQueue queue = Volley.newRequestQueue(context);
-                String url = "http://54.86.18.174/api/getUserPictures";
+                String url = baseUrl + "getUserPictures";
 
                 JSONObject userID = new JSONObject();
                 try {
@@ -316,6 +324,122 @@ public class Backend {
 
 
 
+    public abstract  class GetInterestsListener {
+        public GetInterestsListener() {
+        }
+
+        public abstract void onInterestsFetched(ArrayList<String> listInterests);
+    }
+
+    public void getIntersets(final GetInterestsListener listener) {
+        class getIntersetsTask extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                RequestQueue queue = Volley.newRequestQueue(context);
+                String url = baseUrl + "getInterests";
+
+                JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                        (Request.Method.GET, url, new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                Log.v("fd", "df");
+                                ArrayList<String> listInterest = new ArrayList<String>();
+                                try {
+                                    JSONArray arrayJson = response.getJSONArray("interests");
+                                    for (int i=0; i<arrayJson.length(); i++) {
+                                        String interestName = arrayJson.getJSONObject(i).getString("interest");
+                                        listInterest.add(interestName);
+                                    }
+                                    listener.onInterestsFetched(listInterest);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.v("fd", "df");
+                            }
+                        });
+
+                queue.add(jsObjRequest);
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+            }
+
+
+
+        }
+
+        new getIntersetsTask().execute();
+
+    }
+
+
+
+
+    public void updateUserInterests() {
+        class updateUserInterestsTask extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                RequestQueue queue = Volley.newRequestQueue(context);
+                String url = baseUrl + "updateInterests";
+
+                JSONObject userInterest = new JSONObject();
+                try {
+                    userInterest.put("user_id", User.getInstance().getUserID());
+                    ArrayList<String> listInterest = new ArrayList<String>(User.getInstance().getInterests());
+                    userInterest.put("interests", listInterest);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                        (Request.Method.POST, url, userInterest, new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                Log.v("abc", "ad");
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Log.v("sa","fd");
+                            }
+                        });
+
+                queue.add(jsObjRequest);
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+            }
+
+        }
+
+        new updateUserInterestsTask().execute();
+
+    }
+
+
+
+
+
 
     public String encodeImage(Bitmap bitmap){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -324,7 +448,6 @@ public class Backend {
         String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
         return encodedImage;
     }
-
     public static Bitmap getBitmapFromURL(String src) {
         try {
             URL url = new URL(src);
@@ -339,6 +462,10 @@ public class Backend {
             return null;
         }
     }
+
+
+
+
 
 
 

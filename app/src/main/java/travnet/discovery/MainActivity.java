@@ -10,6 +10,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -23,12 +24,15 @@ import com.github.clans.fab.FloatingActionButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity
         implements SignInFragment.OnFragmentInteractionListener, SignInFragment.OnLoginListener,
         HomeFragment.OnFragmentInteractionListener,
         GoogleApiClient.OnConnectionFailedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
+    private static final int REQUEST_ADD_INTEREST = 1;
     HomeFragment homeFragment;
     View navDrawerheader;
 
@@ -50,6 +54,7 @@ public class MainActivity extends AppCompatActivity
         if (isLogged) {
             String userID = myPrefs.getString("user_id", "");
             User.getInstance().setUserID(userID);
+            Log.i("login", userID);
 
             //Set Picture Fragment
             homeFragment.setArguments(getIntent().getExtras());
@@ -86,6 +91,7 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor prefsEditor = myPrefs.edit();
         prefsEditor.putBoolean("isLogged", true);
         prefsEditor.commit();
+        Log.i("login", User.getInstance().getUserID());
 
         //Replace Login Fragment with Picture Fragment
         replaceFragment(homeFragment);
@@ -93,6 +99,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     void setupHomeScreen() {
+
+        
         //Initialize navigation drawer
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -126,10 +134,31 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onUserInfoFetched() {
                 updateNavDrawerHeader();
+                if (User.getInstance().getUserState() == 0){
+                    requestUserInterests();
+                }
+
                 Toast.makeText(getApplicationContext(), "User info fetched", Toast.LENGTH_LONG).show();
             }
         });
 
+    }
+
+    private void requestUserInterests() {
+        Intent intent = new Intent(this, AddInterestActivity.class);
+        intent.putExtra("minimum_required", 3);
+        this.startActivityForResult(intent, REQUEST_ADD_INTEREST);
+    }
+
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_ADD_INTEREST) {
+            User.getInstance().setUserState(1);
+
+            Backend.getInstance().updateUserInterests();
+        }
 
     }
 
@@ -139,7 +168,8 @@ public class MainActivity extends AppCompatActivity
     public void replaceFragment (Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
-        transaction.commit();
+        transaction.addToBackStack(null);
+        transaction.commitAllowingStateLoss();
     }
 
 
