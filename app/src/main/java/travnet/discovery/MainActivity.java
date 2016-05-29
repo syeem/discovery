@@ -39,6 +39,7 @@ public class MainActivity extends AppCompatActivity
     SignInFragment signInFragment;
     Backend backend;
     View navDrawerHeader;
+    SharedPreferences myPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity
 
 
         //Check for previous login
-        SharedPreferences myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
+        myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
         boolean isLogged = myPrefs.getBoolean("isLogged", false);
         String userID = myPrefs.getString("user_id", "");
 
@@ -74,7 +75,6 @@ public class MainActivity extends AppCompatActivity
 
     public void onLoginSuccessful(){
         //Save login
-        SharedPreferences myPrefs = MainActivity.this.getSharedPreferences("login", MODE_PRIVATE);
         myPrefs.edit().putBoolean("isLogged", true).apply();
         Log.i("login", User.getInstance().getUserID());
 
@@ -95,7 +95,15 @@ public class MainActivity extends AppCompatActivity
         homeFragment.setArguments(getIntent().getExtras());
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, homeFragment).commitAllowingStateLoss();
-        
+
+        //Check if user has selected intgerests
+        int userState = myPrefs.getInt("user_state", 0);
+        User.getInstance().setUserState(userState);
+        if (userState == 0){
+            requestUserInterests();
+        }
+
+
         //Initialize navigation drawer
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -130,9 +138,6 @@ public class MainActivity extends AppCompatActivity
             public void onUserInfoFetched() {
                 Log.i("init", "user info fetched");
                 updateNavDrawerHeader();
-                if (User.getInstance().getUserState() == 0) {
-                    requestUserInterests();
-                }
             }
         });
 
@@ -179,7 +184,7 @@ public class MainActivity extends AppCompatActivity
 
         if (requestCode == REQUEST_ADD_INTEREST) {
             User.getInstance().setUserState(1);
-
+            myPrefs.edit().putInt("user_state", 1).apply();
             backend.updateUserInterests();
         }
 
@@ -203,7 +208,6 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.logout) {
             LoginManager.getInstance().logOut();
             //Clear SharedPreferences
-            SharedPreferences myPrefs = MainActivity.this.getSharedPreferences("login", MODE_PRIVATE);
             SharedPreferences.Editor prefsEditor = myPrefs.edit();
             prefsEditor.putBoolean("isLogged", false);
             prefsEditor.commit();
