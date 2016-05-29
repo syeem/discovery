@@ -32,10 +32,13 @@ public class MainActivity extends AppCompatActivity
         GoogleApiClient.OnConnectionFailedListener,
         NavigationView.OnNavigationItemSelectedListener {
 
-    private static final int REQUEST_ADD_INTEREST = 1;
-    HomeFragment homeFragment;
-    View navDrawerheader;
 
+    private static final int REQUEST_ADD_INTEREST = 1;
+
+    HomeFragment homeFragment;
+    SignInFragment signInFragment;
+    Backend backend;
+    View navDrawerHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,29 +46,23 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         FacebookSdk.sdkInitialize(this);
-        Backend.getInstance().initialize(getApplicationContext());
+        backend = Backend.getInstance();
+        backend.initialize(getApplicationContext());
         homeFragment = new HomeFragment();
 
 
         //Check for previous login
         SharedPreferences myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
         boolean isLogged = myPrefs.getBoolean("isLogged", false);
-        //boolean isLogged = false;
-        if (isLogged) {
-            String userID = myPrefs.getString("user_id", "");
+        String userID = myPrefs.getString("user_id", "");
+
+        if (isLogged && !userID.equals("")) {
             User.getInstance().setUserID(userID);
             Log.i("login", userID);
-
-            //Set Picture Fragment
-            homeFragment.setArguments(getIntent().getExtras());
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, homeFragment).commit();
-
             setupHomeScreen();
-
         } else {
             //Set Login fragment
-            SignInFragment signInFragment = new SignInFragment();
+            signInFragment = new SignInFragment();
             signInFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, signInFragment).commit();
@@ -75,36 +72,34 @@ public class MainActivity extends AppCompatActivity
 
 
 
-    public void onFragmentInteraction(Uri uri){
-        //you can leave it empty
-    }
-
-    public void onListViewScrollStart(){
-    }
-
-    public void onListViewScrollStop(){
-    }
-
     public void onLoginSuccessful(){
         //Save login
         SharedPreferences myPrefs = MainActivity.this.getSharedPreferences("login", MODE_PRIVATE);
-        SharedPreferences.Editor prefsEditor = myPrefs.edit();
-        prefsEditor.putBoolean("isLogged", true);
-        prefsEditor.commit();
+        myPrefs.edit().putBoolean("isLogged", true).apply();
         Log.i("login", User.getInstance().getUserID());
 
-        //Replace Login Fragment with Picture Fragment
-        replaceFragment(homeFragment);
+        //Remove Login Fragment
+        getSupportFragmentManager().beginTransaction()
+            .remove(signInFragment).commitAllowingStateLoss();
         setupHomeScreen();
     }
 
-    void setupHomeScreen() {
 
+    public void onLoginFailed(){
+        LoginManager.getInstance().logOut();
+        Toast.makeText(getApplicationContext(), R.string.error_login_failed, Toast.LENGTH_LONG).show();
+    }
+
+
+    void setupHomeScreen() {
+        homeFragment.setArguments(getIntent().getExtras());
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_container, homeFragment).commitAllowingStateLoss();
         
         //Initialize navigation drawer
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        navDrawerheader = navigationView.getHeaderView(0);
+        navDrawerHeader = navigationView.getHeaderView(0);
 
         //Floating action buttons
         FloatingActionButton fabAddBlog = (FloatingActionButton) findViewById(R.id.fab_add_blog);
@@ -129,20 +124,48 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-
-        Backend.getInstance().getUserInfo(Backend.getInstance().new GetUserInfoListener() {
+        //Get User Info from Server
+        backend.getUserInfo(backend.new GetUserInfoListener() {
             @Override
             public void onUserInfoFetched() {
+                Log.i("init", "user info fetched");
                 updateNavDrawerHeader();
-                if (User.getInstance().getUserState() == 0){
+                if (User.getInstance().getUserState() == 0) {
                     requestUserInterests();
                 }
-
-                Toast.makeText(getApplicationContext(), "User info fetched", Toast.LENGTH_LONG).show();
             }
         });
 
     }
+
+
+    void addBlogCard() {
+        Intent intent = new Intent(this, AddBlogCardActivity.class);
+        this.startActivity(intent);
+    }
+
+    void addPictureCardGallery() {
+        Intent intent = new Intent(this, AddPictureCardActivity.class);
+        intent.putExtra("source", "gallery");
+        this.startActivity(intent);
+    }
+
+    void addPictureCardCamera() {
+        Intent intent = new Intent(this, AddPictureCardActivity.class);
+        intent.putExtra("source", "camera");
+        this.startActivity(intent);
+    }
+
+
+    void updateNavDrawerHeader() {
+        ImageView profilePic = (ImageView) navDrawerHeader.findViewById(R.id.profile_pic);
+        profilePic.setImageBitmap(User.getInstance().getProfilePic());
+        TextView profileName = (TextView) navDrawerHeader.findViewById(R.id.profile_name);
+        profileName.setText(User.getInstance().getName());
+        TextView profileHome = (TextView) navDrawerHeader.findViewById(R.id.profile_home);
+        profileHome.setText(User.getInstance().getHometown());
+    }
+
 
     private void requestUserInterests() {
         Intent intent = new Intent(this, AddInterestActivity.class);
@@ -157,44 +180,15 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == REQUEST_ADD_INTEREST) {
             User.getInstance().setUserState(1);
 
-            Backend.getInstance().updateUserInterests();
+            backend.updateUserInterests();
         }
 
     }
 
 
 
-
-    public void replaceFragment (Fragment fragment) {
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, fragment);
-        transaction.addToBackStack(null);
-        transaction.commitAllowingStateLoss();
-    }
-
-
-    public  void onPictureSelected(String imagePath) {
-
-    }
-
-    public void onUploadingBlog() {
-
-
-    }
-
-
-    public void onImageCropped(Uri uri) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
-    }
-
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
         if (id == R.id.nav_profile_photos) {
@@ -226,31 +220,18 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    void addBlogCard() {
-        Intent intent = new Intent(this, AddBlogCardActivity.class);
-        this.startActivity(intent);
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
     }
 
-    void addPictureCardGallery() {
-        Intent intent = new Intent(this, AddPictureCardActivity.class);
-        intent.putExtra("source", "gallery");
-        this.startActivity(intent);
+    public void onFragmentInteraction(Uri uri){
     }
 
-    void addPictureCardCamera() {
-        Intent intent = new Intent(this, AddPictureCardActivity.class);
-        intent.putExtra("source", "camera");
-        this.startActivity(intent);
+    public void onListViewScrollStart(){
     }
 
-
-    void updateNavDrawerHeader() {
-        ImageView profilePic = (ImageView) navDrawerheader.findViewById(R.id.profile_pic);
-        profilePic.setImageBitmap(User.getInstance().getProfilePic());
-        TextView profileName = (TextView) navDrawerheader.findViewById(R.id.profile_name);
-        profileName.setText(User.getInstance().getName());
-        TextView profileHome = (TextView) navDrawerheader.findViewById(R.id.profile_home);
-        profileHome.setText(User.getInstance().getHometown());
+    public void onListViewScrollStop(){
     }
 
 }

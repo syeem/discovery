@@ -135,13 +135,18 @@ public class SignInFragment extends Fragment {
                                         public void registerNewUserCompleted() {
                                             loginListener.onLoginSuccessful();
                                         }
+
+                                        @Override
+                                        public void registerNewUserFailed() {
+                                            loginListener.onLoginFailed();
+                                        }
                                     });
 
                                 } catch (JSONException e) {
                                     e.printStackTrace();
                                 }
-
                             }
+
                         });
                 Bundle parameters = new Bundle();
                 parameters.putString("fields", "id,email,name,hometown,location,picture.width(300).height(300)");
@@ -154,11 +159,12 @@ public class SignInFragment extends Fragment {
 
             @Override
             public void onCancel() {
-
+                loginListener.onLoginFailed();
             }
 
             @Override
             public void onError(FacebookException e) {
+                loginListener.onLoginFailed();
                 e.printStackTrace();
             }
         });
@@ -219,6 +225,7 @@ public class SignInFragment extends Fragment {
 
     public interface OnLoginListener {
         void onLoginSuccessful();
+        void onLoginFailed();
     }
 
 

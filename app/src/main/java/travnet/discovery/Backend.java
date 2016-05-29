@@ -57,6 +57,7 @@ public class Backend {
         }
 
         public abstract void registerNewUserCompleted();
+        public abstract void registerNewUserFailed();
     }
 
     public void registerNewUser(final String id, final String name, final String email, final String location, final String hometown, final String ppURL, final RegisterNewUserListener listener) {
@@ -111,6 +112,7 @@ public class Backend {
 
                             @Override
                             public void onErrorResponse(VolleyError error) {
+                                listener.registerNewUserFailed();
                             }
                         });
 
