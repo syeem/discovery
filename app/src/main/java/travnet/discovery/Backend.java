@@ -388,6 +388,56 @@ public class Backend {
 
 
 
+    public void postPictureCard(final String title, final String interest) {
+        class postPictureCard extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                RequestQueue queue = Volley.newRequestQueue(context);
+                String url = baseUrl + "registerCard";
+
+                JSONObject pictureCard = new JSONObject();
+                try {
+                    pictureCard.put("user_id", User.getInstance().getUserID());
+                    pictureCard.put("card_type", "photo");
+                    pictureCard.put("interest", interest);
+                    pictureCard.put("title", title);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                        (Request.Method.POST, url, pictureCard, new Response.Listener<JSONObject>() {
+
+                            @Override
+                            public void onResponse(JSONObject response) {
+
+                            }
+                        }, new Response.ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                            }
+                        });
+
+                queue.add(jsObjRequest);
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+
+            }
+        }
+
+        new postPictureCard().execute();
+
+    }
+
+
+
 
     public void updateUserInterests() {
         class updateUserInterestsTask extends AsyncTask<Void, Void, Void> {

@@ -172,6 +172,9 @@ public class AddPictureCardActivity extends AppCompatActivity {
 
     void postPicture() {
 
+
+
+
         finish();
     }
 
