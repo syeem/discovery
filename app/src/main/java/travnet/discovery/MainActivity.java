@@ -48,18 +48,14 @@ public class MainActivity extends AppCompatActivity
 
         FacebookSdk.sdkInitialize(this);
         backend = Backend.getInstance();
-        backend.initialize(getApplicationContext());
         homeFragment = new HomeFragment();
 
+        myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
 
         //Check for previous login
-        myPrefs = this.getSharedPreferences("login", MODE_PRIVATE);
-        boolean isLogged = myPrefs.getBoolean("isLogged", false);
-        String userID = myPrefs.getString("user_id", "");
+        boolean isLogged = getIntent().getExtras().getBoolean("isLogged");
 
-        if (isLogged && !userID.equals("")) {
-            User.getInstance().setUserID(userID);
-            Log.i("login", userID);
+        if (isLogged) {
             setupHomeScreen();
         } else {
             //Set Login fragment
@@ -213,6 +209,7 @@ public class MainActivity extends AppCompatActivity
             prefsEditor.commit();
             //Restart activity
             Intent intent = getIntent();
+            intent.putExtra("isLogged", false);
             finish();
             startActivity(intent);
         }

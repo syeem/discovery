@@ -14,6 +14,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -40,6 +41,15 @@ public class Backend {
     //private String baseUrl = "http://192.168.1.25:8080/api/";
     private String baseUrl = "http://54.86.18.174/api/";
 
+    public static final int NO_OF_CARDS = 5;
+    private static final int TYPE_PICTURE = 0;
+    private static final int TYPE_BLOG = 1;
+
+    static ArrayList<DataPictureCard> dataPictureCards;
+    static ArrayList<DataBlogCard> dataBlogCards;
+    static ArrayList<HomeFragment.CardsRef> cardsRef;
+
+
     public static Backend getInstance() {
         return ourInstance;
     }
@@ -49,6 +59,10 @@ public class Backend {
 
     public void initialize(Context context) {
         this.context = context;
+
+        dataPictureCards = new ArrayList<>();
+        dataBlogCards = new ArrayList<>();
+        cardsRef = new ArrayList<>();
     }
 
 
@@ -433,6 +447,99 @@ public class Backend {
         }
 
         new postPictureCard().execute();
+
+    }
+
+
+
+    public abstract  class GetCardsListener {
+        public GetCardsListener() {
+        }
+
+        public abstract void onCardsFetched(ArrayList<DataPictureCard> dataPictureCards, ArrayList<DataBlogCard> dataBlogCards, ArrayList<HomeFragment.CardsRef> cardsRef);
+        public abstract void onGetCardsFailed();
+    }
+    public void getCards(int currNoOfCards, final GetCardsListener listener) {
+
+        if (cardsRef.size() > currNoOfCards) {
+            listener.onCardsFetched(dataPictureCards, dataBlogCards, cardsRef);
+            return;
+        } else {
+            dataPictureCards.clear();
+            dataBlogCards.clear();
+            cardsRef.clear();
+        }
+
+
+        class getCardsTask extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                RequestQueue queue = Volley.newRequestQueue(context);
+                String url = baseUrl + "getCards";
+
+                StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    JSONObject jsonObj = new JSONObject(response);
+                                    JSONArray arrayJson = jsonObj.getJSONArray("cards");
+                                    for (int i=0; i< NO_OF_CARDS; i++) {
+                                        JSONObject card = arrayJson.getJSONObject(i);
+                                        HomeFragment.CardsRef cardRef = new HomeFragment.CardsRef();
+
+                                        String check = card.getString(("card-type"));
+                                        if (card.getString("card-type").equals("image")) {
+                                            cardRef.type = TYPE_PICTURE;
+                                            cardRef.index = dataPictureCards.size();
+                                            cardsRef.add(cardRef);
+                                            JSONObject content = card.getJSONObject("content");
+                                            DataPictureCard temp = new DataPictureCard(content.getString("description"), content.getString("url"),
+                                                    card.getInt("likes"), card.getString("location"), "Place holder", card.getString("user-name"),
+                                                    card.getString("user-img"));
+                                            dataPictureCards.add(temp);
+                                        }
+                                        else if (card.getString("card-type").equals("blog")) {
+                                            cardRef.type = TYPE_BLOG;
+                                            cardRef.index = dataBlogCards.size();
+                                            cardsRef.add(cardRef);
+                                            JSONObject content = card.getJSONObject("content");
+                                            DataBlogCard temp = new DataBlogCard(content.getString("url"), content.getString("thumbnail"), content.getString("title"),
+                                                    content.getString("abstract"), card.getInt("likes"), card.getString("location"), card.getString("user-name"),
+                                                    card.getString("user-img"));
+                                            dataBlogCards.add(temp);
+
+                                        }
+                                    }
+                                    listener.onCardsFetched(dataPictureCards, dataBlogCards, cardsRef);
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        listener.onGetCardsFailed();
+                    }
+                });
+
+                // Add the request to the RequestQueue.
+                queue.add(stringRequest);
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+            }
+
+
+
+        }
+
+        new getCardsTask().execute();
 
     }
 

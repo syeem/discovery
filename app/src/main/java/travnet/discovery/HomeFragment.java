@@ -61,7 +61,7 @@ public class HomeFragment extends Fragment {
 
 
 
-    public class CardsRef {
+    public static class CardsRef {
         int type;
         int index;
     }
@@ -119,10 +119,10 @@ public class HomeFragment extends Fragment {
         dataPictureCards = new ArrayList<>();
         dataBlogCards = new ArrayList<>();
         cardsRef = new ArrayList<>();
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).build();
-        ImageLoader.getInstance().init(config);
+        //ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).build();
+        //ImageLoader.getInstance().init(config);
         imageLoader = ImageLoader.getInstance();
-        requestPictures();
+
     }
 
     @Override
@@ -131,6 +131,8 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.list);
+
+        requestPictures();
 
         return view;
     }
@@ -167,64 +169,31 @@ public class HomeFragment extends Fragment {
     }
 
 
+
     // Function to make http request for pictures. The received image urls are added to imageUrls.
     // During the first call the listView is initialized
     private void requestPictures () {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = URL_GET_STRING;
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObj = new JSONObject(response);
-                            JSONArray arrayJson = jsonObj.getJSONArray("cards");
-                            for (int i=0; i< NO_OF_CARDS; i++) {
-                                JSONObject card = arrayJson.getJSONObject(i);
-                                CardsRef cardRef = new CardsRef();
-
-                                String check = card.getString(("card-type"));
-                                if (card.getString("card-type").equals("image")) {
-                                    cardRef.type = TYPE_PICTURE;
-                                    cardRef.index = dataPictureCards.size();
-                                    cardsRef.add(cardRef);
-                                    JSONObject content = card.getJSONObject("content");
-                                    DataPictureCard temp = new DataPictureCard(content.getString("description"), content.getString("url"),
-                                            card.getInt("likes"), card.getString("location"), "Place holder", card.getString("user-name"),
-                                            card.getString("user-img"));
-                                    dataPictureCards.add(temp);
-                                }
-                                else if (card.getString("card-type").equals("blog")) {
-                                    cardRef.type = TYPE_BLOG;
-                                    cardRef.index = dataBlogCards.size();
-                                    cardsRef.add(cardRef);
-                                    JSONObject content = card.getJSONObject("content");
-                                    DataBlogCard temp = new DataBlogCard(content.getString("url"), content.getString("thumbnail"), content.getString("title"),
-                                            content.getString("abstract"), card.getInt("likes"), card.getString("location"), card.getString("user-name"),
-                                            card.getString("user-img"));
-                                    dataBlogCards.add(temp);
-
-                                }
-
-                            }
-                            if (cardsRef.size() <= NO_OF_CARDS)
-                                initializeListView();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
+        Backend.getInstance().getCards(cardsRef.size(), Backend.getInstance().new GetCardsListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
+            public void onCardsFetched(ArrayList<DataPictureCard> dataPictureCards, ArrayList<DataBlogCard> dataBlogCards, ArrayList<CardsRef> cardsRef) {
+                copyCards(dataPictureCards, dataBlogCards, cardsRef);
+            }
+
+            @Override
+            public void onGetCardsFailed() {
                 Toast.makeText(getActivity().getApplicationContext(), R.string.error_connect_server_failed, Toast.LENGTH_LONG).show();
             }
         });
+    }
 
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+
+    private void copyCards(ArrayList<DataPictureCard> dataPictureCards, ArrayList<DataBlogCard> dataBlogCards, ArrayList<CardsRef> cardsRef) {
+        this.dataPictureCards.addAll(dataPictureCards);
+        this.dataBlogCards.addAll(dataBlogCards);
+        this.cardsRef.addAll(cardsRef);
+
+        if (this.cardsRef.size() <= NO_OF_CARDS)
+            initializeListView();
     }
 
 
