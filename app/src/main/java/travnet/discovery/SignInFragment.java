@@ -128,7 +128,7 @@ public class SignInFragment extends Fragment {
                                     JSONObject picture = object.getJSONObject("picture");
                                     String ppURL = picture.getJSONObject("data").getString("url");
 
-                                    User.getInstance().updateUser("-1", name, email, location, hometown, null);
+                                    User.getInstance().updateUser(name, email, location, hometown, null);
 
                                     Backend.getInstance().registerNewUser(id, name, email, location, hometown, ppURL, Backend.getInstance().new RegisterNewUserListener() {
                                         @Override

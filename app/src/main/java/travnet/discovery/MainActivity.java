@@ -23,6 +23,7 @@ import com.facebook.login.*;
 import com.github.clans.fab.FloatingActionButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -135,6 +136,9 @@ public class MainActivity extends AppCompatActivity
                 Log.i("init", "user info fetched");
                 updateNavDrawerHeader();
             }
+            @Override
+            public void onGetUserInfoFailed() {
+            }
         });
 
     }
@@ -160,7 +164,9 @@ public class MainActivity extends AppCompatActivity
 
     void updateNavDrawerHeader() {
         ImageView profilePic = (ImageView) navDrawerHeader.findViewById(R.id.profile_pic);
-        profilePic.setImageBitmap(User.getInstance().getProfilePic());
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        imageLoader.displayImage(User.getInstance().getProfilePicURL(), profilePic);
+        //profilePic.setImageBitmap(User.getInstance().getProfilePic());
         TextView profileName = (TextView) navDrawerHeader.findViewById(R.id.profile_name);
         profileName.setText(User.getInstance().getName());
         TextView profileHome = (TextView) navDrawerHeader.findViewById(R.id.profile_home);

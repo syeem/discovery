@@ -16,7 +16,7 @@ public class User {
     private String email;
     private String hometown;
     private String location;
-    private Bitmap profilePic;
+    private String profilePicURL;
 
     private int userState;
 
@@ -31,12 +31,12 @@ public class User {
     }
 
 
-    public void updateUser (String id, String name, String email, String location, String hometown, Bitmap profilePic) {
+    public void updateUser (String name, String email, String location, String hometown, String profilePicURL) {
         this.name = name;
         this.email = email;
         this.hometown = hometown;
         this.location = location;
-        this.profilePic = profilePic;
+        this.profilePicURL = profilePicURL;
     }
 
     public void setUserID(String userID) {
@@ -47,14 +47,6 @@ public class User {
         return userID;
     }
 
-
-    public Bitmap getProfilePic() {
-        return profilePic;
-    }
-
-    public void setProfilePic(Bitmap profilePic) {
-        this.profilePic = profilePic;
-    }
 
     public String getName() {
         return name;
@@ -105,5 +97,13 @@ public class User {
 
     public void setUserState(int userState) {
         this.userState = userState;
+    }
+
+    public String getProfilePicURL() {
+        return profilePicURL;
+    }
+
+    public void setProfilePicURL(String profilePicURL) {
+        this.profilePicURL = profilePicURL;
     }
 }

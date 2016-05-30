@@ -30,6 +30,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by root on 5/20/16.
@@ -80,14 +81,11 @@ public class Backend {
 
             @Override
             protected Void doInBackground(Void... params) {
-                //Bitmap profilePic = ImageLoader.getInstance().loadImageSync(ppURL);
-                Bitmap profilePic = getBitmapFromURL(ppURL);
-                User.getInstance().setProfilePic(profilePic);
+                User.getInstance().setProfilePicURL(ppURL);
 
 
                 RequestQueue queue = Volley.newRequestQueue(context);
                 String url = baseUrl + "registerUser";
-                String image = encodeImage(profilePic);
 
                 JSONObject user = new JSONObject();
                 try {
@@ -151,6 +149,7 @@ public class Backend {
         }
 
         public abstract void onUserInfoFetched();
+        public abstract void onGetUserInfoFailed();
     }
 
 
@@ -177,13 +176,29 @@ public class Backend {
 
                             @Override
                             public void onResponse(JSONObject response) {
-                                listener.onUserInfoFetched();
+                                try {
+                                    String name = response.getString("name");
+                                    String email = response.getString("email");
+                                    String hometown = response.getString("home");
+                                    String location = response.getString("living_in");
+                                    String ppURL = response.getString("profile_pic");
+                                    JSONArray interestJSON = response.getJSONArray("interests");
+                                    String temp = interestJSON.getString(0);
+                                    List<String> interests = Arrays.asList(temp.substring(1,temp.length()-1).split("\\s*,\\s*"));
+                                    User.getInstance().updateUser(name, email, location, hometown, ppURL);
+                                    User.getInstance().setInterests(interests);
+                                    listener.onUserInfoFetched();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    listener.onGetUserInfoFailed();
+                                }
 
                             }
                         }, new Response.ErrorListener() {
 
                             @Override
                             public void onErrorResponse(VolleyError error) {
+                                listener.onGetUserInfoFailed();
                             }
                         });
 
@@ -594,34 +609,6 @@ public class Backend {
         new updateUserInterestsTask().execute();
 
     }
-
-
-
-
-
-
-    public String encodeImage(Bitmap bitmap){
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] imageBytes = baos.toByteArray();
-        String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
-        return encodedImage;
-    }
-    public static Bitmap getBitmapFromURL(String src) {
-        try {
-            URL url = new URL(src);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return myBitmap;
-        } catch (IOException e) {
-            // Log exception
-            return null;
-        }
-    }
-
 
 
 

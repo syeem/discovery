@@ -43,18 +43,19 @@ public class InterestActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         userInterests = new ArrayList<String>();
-
         listInterests = (SwipeMenuListView) findViewById(R.id.list_interests);
-        initializeLiztView();
 
+        initializeListView();
+        userInterests.addAll(User.getInstance().getInterests());
+        populateListView();
 
-        Backend.getInstance().getUserIntersets(Backend.getInstance().new GetUserInterestsListener() {
+        /*Backend.getInstance().getUserIntersets(Backend.getInstance().new GetUserInterestsListener() {
             @Override
             public void onUserInterestsFetched() {
                 userInterests = User.getInstance().getInterests();
                 populateListView();
             }
-        });
+        });*/
 
         Button buttonAddInterest = (Button) findViewById(R.id.add_interest);
         buttonAddInterest.setOnClickListener(new View.OnClickListener() {
@@ -73,7 +74,7 @@ public class InterestActivity extends AppCompatActivity {
     }
 
 
-    private void initializeLiztView() {
+    private void initializeListView() {
         SwipeMenuCreator creator = new SwipeMenuCreator() {
 
             @Override
