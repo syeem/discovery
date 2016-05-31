@@ -187,7 +187,15 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == REQUEST_ADD_INTEREST) {
             User.getInstance().setUserState(1);
             myPrefs.edit().putInt("user_state", 1).apply();
-            backend.updateUserInterests();
+            backend.updateUserInterests(Backend.getInstance().new UpdateUserInterestsListener() {
+                @Override
+                public void onInterestsUpdated() {
+                }
+
+                @Override
+                public void onInterestsUpdateFailed() {
+                }
+            });
         }
 
     }

@@ -86,9 +86,8 @@ public class User {
     }
 
     public void setInterests(List<String> interests) {
-        for (int i = 0; i < interests.size(); i++) {
-            this.interests.add(interests.get(i));
-        }
+        this.interests.clear();
+        this.interests.addAll(interests);
     }
 
     public int getUserState() {

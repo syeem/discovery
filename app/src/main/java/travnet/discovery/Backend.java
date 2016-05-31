@@ -67,7 +67,7 @@ public class Backend {
     }
 
 
-    public abstract  class RegisterNewUserListener {
+    public abstract class RegisterNewUserListener {
         public RegisterNewUserListener() {
         }
 
@@ -144,7 +144,7 @@ public class Backend {
     }
 
 
-    public abstract  class GetUserInfoListener {
+    public abstract class GetUserInfoListener {
         public GetUserInfoListener() {
         }
 
@@ -222,7 +222,7 @@ public class Backend {
 
 
 
-    public abstract  class GetUserInterestsListener {
+    public abstract class GetUserInterestsListener {
         public GetUserInterestsListener() {
         }
 
@@ -284,7 +284,7 @@ public class Backend {
 
 
 
-    public abstract  class GetUserPicturesListener {
+    public abstract class GetUserPicturesListener {
         public GetUserPicturesListener() {
         }
 
@@ -355,7 +355,7 @@ public class Backend {
 
 
 
-    public abstract  class GetInterestsListener {
+    public abstract class GetInterestsListener {
         public GetInterestsListener() {
         }
 
@@ -467,7 +467,7 @@ public class Backend {
 
 
 
-    public abstract  class GetCardsListener {
+    public abstract class GetCardsListener {
         public GetCardsListener() {
         }
 
@@ -560,8 +560,14 @@ public class Backend {
 
 
 
+    public abstract class UpdateUserInterestsListener {
+        public UpdateUserInterestsListener() {
+        }
 
-    public void updateUserInterests() {
+        public abstract void onInterestsUpdated();
+        public abstract void onInterestsUpdateFailed();
+    }
+    public void updateUserInterests(final UpdateUserInterestsListener listener) {
         class updateUserInterestsTask extends AsyncTask<Void, Void, Void> {
 
             @Override
@@ -585,13 +591,13 @@ public class Backend {
 
                             @Override
                             public void onResponse(JSONObject response) {
-                                Log.v("abc", "ad");
+                                listener.onInterestsUpdated();
                             }
                         }, new Response.ErrorListener() {
 
                             @Override
                             public void onErrorResponse(VolleyError error) {
-                                Log.v("sa","fd");
+                                listener.onInterestsUpdateFailed();
                             }
                         });
 

@@ -11,6 +11,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -32,7 +34,7 @@ public class InterestActivity extends AppCompatActivity {
     private static final int REQUEST_ADD_INTEREST = 1;
 
     List<String> userInterests;
-    SwipeMenuListView listInterests;
+    SwipeMenuListView listViewInterests;
     ArrayAdapter adapter;
 
     @Override
@@ -43,22 +45,15 @@ public class InterestActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         userInterests = new ArrayList<String>();
-        listInterests = (SwipeMenuListView) findViewById(R.id.list_interests);
+        listViewInterests = (SwipeMenuListView) findViewById(R.id.list_interests);
 
         initializeListView();
         userInterests.addAll(User.getInstance().getInterests());
-        populateListView();
 
-        /*Backend.getInstance().getUserIntersets(Backend.getInstance().new GetUserInterestsListener() {
-            @Override
-            public void onUserInterestsFetched() {
-                userInterests = User.getInstance().getInterests();
-                populateListView();
-            }
-        });*/
+        //Handle case where user interests have not been updated
 
-        Button buttonAddInterest = (Button) findViewById(R.id.add_interest);
-        buttonAddInterest.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fabAddInterest = (FloatingActionButton) findViewById(R.id.add_interest);
+        fabAddInterest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startAddInterestActivity();
@@ -67,51 +62,47 @@ public class InterestActivity extends AppCompatActivity {
 
     }
 
-    private void startAddInterestActivity() {
-        Intent intent = new Intent(this, AddInterestActivity.class);
-        intent.putExtra("interests", (Serializable) userInterests);
-        this.startActivityForResult(intent, REQUEST_ADD_INTEREST);
-    }
-
 
     private void initializeListView() {
         SwipeMenuCreator creator = new SwipeMenuCreator() {
 
             @Override
             public void create(SwipeMenu menu) {
-                // create delete button
-                SwipeMenuItem deleteItem = new SwipeMenuItem(
+                // Create delete button
+                SwipeMenuItem deleteMenuItem = new SwipeMenuItem(
                         getApplicationContext());
-                deleteItem.setBackground(new ColorDrawable(Color.rgb(0x00,0x00, 0x00)));
-                deleteItem.setWidth(200);
-                deleteItem.setIcon(R.drawable.ic_delete);
-                menu.addMenuItem(deleteItem);
+                deleteMenuItem.setBackground(new ColorDrawable(Color.rgb(0x00,0x00, 0x00)));
+                deleteMenuItem.setWidth(200);
+                deleteMenuItem.setIcon(R.drawable.ic_delete);
+                menu.addMenuItem(deleteMenuItem);
             }
         };
 
-        listInterests.setMenuCreator(creator);
-        listInterests.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
-        listInterests.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+        listViewInterests.setMenuCreator(creator);
+        listViewInterests.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
+        listViewInterests.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
                 switch (index) {
                     case 0:
-                        userInterests.remove(position);
-                        adapter.notifyDataSetChanged();
+                        deleteInterest(position);
                         break;
                 }
                 return false;
             }
         });
-    }
 
-
-    private void populateListView() {
         adapter = new ArrayAdapter<String>(this, R.layout.card_interest, R.id.interest_name, userInterests);
-        listInterests.setAdapter(adapter);
+        listViewInterests.setAdapter(adapter);
     }
 
 
+
+    private void startAddInterestActivity() {
+        Intent intent = new Intent(this, AddInterestActivity.class);
+        intent.putExtra("interests", (Serializable) userInterests);
+        this.startActivityForResult(intent, REQUEST_ADD_INTEREST);
+    }
 
 
 
@@ -120,14 +111,56 @@ public class InterestActivity extends AppCompatActivity {
 
         if (requestCode == REQUEST_ADD_INTEREST) {
             ArrayList<String> interestsToAdd = (ArrayList<String>) data.getSerializableExtra("interests");
-            for (int i = 0; i < interestsToAdd.size(); i++) {
-                userInterests.add(interestsToAdd.get(i));
-                adapter.notifyDataSetChanged();
-            }
-
+            updateInterests(interestsToAdd);
         }
 
     }
 
+    private void deleteInterest(int position) {
+        userInterests.remove(position);
+        adapter.notifyDataSetChanged();
+    }
+
+
+    private void updateInterests(ArrayList<String> interestsToAdd) {
+        userInterests.clear();
+        userInterests.addAll(interestsToAdd);
+        adapter.notifyDataSetChanged();
+    }
+
+    private void updateBackend() {
+        Backend backend = Backend.getInstance();
+        backend.updateUserInterests(backend.new UpdateUserInterestsListener() {
+            @Override
+            public void onInterestsUpdated() {
+            }
+
+            @Override
+            public void onInterestsUpdateFailed() {
+            }
+        });
+    }
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_activity_complete, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_done) {
+            User.getInstance().setInterests(userInterests);
+            updateBackend();
+            finish();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
 }
