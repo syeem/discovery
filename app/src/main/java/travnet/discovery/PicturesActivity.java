@@ -30,7 +30,7 @@ import java.util.List;
 
 public class PicturesActivity extends AppCompatActivity {
 
-    List<DataPictureCard> userPictures;
+    ArrayList<DataPictureCard> userPictures;
     ImageAdapter imageadapter;
 
     @Override
@@ -41,44 +41,39 @@ public class PicturesActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         userPictures = new ArrayList<DataPictureCard>();
-        imageadapter = new ImageAdapter(this);
-        //Stub
-        /*DataPictureCard data1 = new DataPictureCard("A", "B", 10, "D", "E", "F", "G");
-        DataPictureCard data2 = new DataPictureCard("A", "B", 10, "D", "E", "F", "G");
-        DataPictureCard data3 = new DataPictureCard("A", "B", 10, "D", "E", "F", "G");
-        DataPictureCard data4 = new DataPictureCard("A", "B", 10, "D", "E", "F", "G");
-        userPictures.add(data1);
-        userPictures.add(data2);
-        userPictures.add(data3);
-        userPictures.add(data4);*/
-
-
+        imageadapter = new ImageAdapter();
         RecyclerView gridUserPictures = (RecyclerView) findViewById(R.id.grid_user_pictures);
 
         Backend.getInstance().getUserPictures(Backend.getInstance().new GetUserPicturesListener() {
             @Override
             public void onUserPicturesFetched(ArrayList<DataPictureCard> userPictures) {
-               addUserPictures(userPictures);
+                addUserPictures(userPictures);
+            }
+
+            @Override
+            public void onGetUserPicturesFailed() {
             }
         });
-
 
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         gridLayoutManager.setOrientation(GridLayoutManager.VERTICAL);
         gridUserPictures.setLayoutManager(gridLayoutManager);
         gridUserPictures.setAdapter(imageadapter);
-
     }
+
+
+    private void addUserPictures(ArrayList<DataPictureCard> userPictures) {
+        this.userPictures.clear();
+        this.userPictures.addAll(userPictures);
+        imageadapter.notifyDataSetChanged();
+    }
+
 
     private class ImageAdapter extends RecyclerView.Adapter <RecyclerView.ViewHolder> {
 
-        private LayoutInflater inflater;
         private DisplayImageOptions options;
 
-
-        ImageAdapter(Context context) {
-            inflater = LayoutInflater.from(context);
-
+        ImageAdapter() {
             options = new DisplayImageOptions.Builder()
                     .showImageOnLoading(R.mipmap.ic_loading)
                     .cacheInMemory(true)
@@ -108,12 +103,8 @@ public class PicturesActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
-
             CardUserPictureViewHolder cardPictureViewHolder = (CardUserPictureViewHolder) holder;
-
             ImageLoader.getInstance().displayImage(userPictures.get(position).link, cardPictureViewHolder.image, options, null);
-
-
         }
     }
 
@@ -128,13 +119,6 @@ public class PicturesActivity extends AppCompatActivity {
     }
 
 
-    private void addUserPictures(ArrayList<DataPictureCard> userPictures) {
-        for (int i = 0; i < userPictures.size(); i++) {
-            this.userPictures.add(userPictures.get(i));
-        }
-
-        imageadapter.notifyDataSetChanged();
-    }
 
 
 

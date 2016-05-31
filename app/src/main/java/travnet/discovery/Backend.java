@@ -289,6 +289,7 @@ public class Backend {
         }
 
         public abstract void onUserPicturesFetched(ArrayList<DataPictureCard> userPictures);
+        public abstract void onGetUserPicturesFailed();
     }
 
     public void getUserPictures(final GetUserPicturesListener listener) {
@@ -298,27 +299,48 @@ public class Backend {
             protected Void doInBackground(Void... params) {
 
                 RequestQueue queue = Volley.newRequestQueue(context);
-                String url = baseUrl + "getUserPictures";
+                String url = baseUrl + "getCards";
 
-                JSONObject userID = new JSONObject();
+                /*JSONObject userID = new JSONObject();
                 try {
                     userID.put("user_id", User.getInstance().getUserID());
 
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
+                }*/
 
                 JsonObjectRequest jsObjRequest = new JsonObjectRequest
-                        (Request.Method.POST, url, userID, new Response.Listener<JSONObject>() {
+                        (Request.Method.GET, url, new Response.Listener<JSONObject>() {
 
                             @Override
                             public void onResponse(JSONObject response) {
+                                try {
+                                    ArrayList<DataPictureCard> dataPictureCards = new ArrayList<DataPictureCard>();
+                                    JSONArray arrayJson = response.getJSONArray("cards");
+                                    for (int i=0; i< NO_OF_CARDS; i++) {
+                                        JSONObject card = arrayJson.getJSONObject(i);
 
+                                        String check = card.getString(("card-type"));
+                                        if (card.getString("card-type").equals("image")) {
+                                            JSONObject content = card.getJSONObject("content");
+                                            DataPictureCard temp = new DataPictureCard(content.getString("description"), content.getString("url"),
+                                                    card.getInt("likes"), card.getString("location"), "Place holder", card.getString("user-name"),
+                                                    card.getString("user-img"));
+                                            dataPictureCards.add(temp);
+                                        }
+                                    }
+                                    listener.onUserPicturesFetched(dataPictureCards);
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    listener.onGetUserPicturesFailed();
+                                }
                             }
                         }, new Response.ErrorListener() {
 
                             @Override
                             public void onErrorResponse(VolleyError error) {
+                                listener.onGetUserPicturesFailed();
                             }
                         });
 
@@ -330,7 +352,7 @@ public class Backend {
             @Override
             protected void onPostExecute(Void v) {
                 //Stub
-                String imageLink = "http://www.planwallpaper.com/static/images/4-Nature-Wallpapers-2014-1_ukaavUI.jpg";
+                /*String imageLink = "http://www.planwallpaper.com/static/images/4-Nature-Wallpapers-2014-1_ukaavUI.jpg";
 
                 ArrayList userPictures = new ArrayList<DataPictureCard>();
                 DataPictureCard data1 = new DataPictureCard("A", imageLink, 10, "D", "E", "F", "G");
@@ -341,7 +363,7 @@ public class Backend {
                 userPictures.add(data2);
                 userPictures.add(data3);
                 userPictures.add(data4);
-                listener.onUserPicturesFetched(userPictures);
+                listener.onUserPicturesFetched(userPictures);*/
 
             }
 

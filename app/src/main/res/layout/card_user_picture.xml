@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:id="@+id/image"/>
+    <android.support.percent.PercentRelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="1dp"
+        android:paddingRight="1dp"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:id = "@+id/image_holder">
+        <ImageView
+            app:layout_widthPercent="100%"
+            app:layout_aspectRatio="100%"
+            android:scaleType="centerCrop"
+            android:id = "@+id/image" />
+    </android.support.percent.PercentRelativeLayout>
 
 
 </LinearLayout>
