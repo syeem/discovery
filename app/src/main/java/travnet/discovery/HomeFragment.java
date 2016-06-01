@@ -6,23 +6,13 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.DecelerateInterpolator;
-import android.widget.AbsListView;
-import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,20 +38,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link PictureFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link PictureFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class PictureFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
+public class HomeFragment extends Fragment {
     public static final int LOADING_THRESHOLD = 2;
     public static final int NO_OF_CARDS = 5;
     public static final String URL_GET_STRING = "http://54.86.18.174/api/getCards";
@@ -69,9 +47,7 @@ public class PictureFragment extends Fragment {
     private static final int TYPE_PICTURE = 0;
     private static final int TYPE_BLOG = 1;
 
-
-
-    public class CardsRef {
+    public static class CardsRef {
         int type;
         int index;
     }
@@ -89,68 +65,42 @@ public class PictureFragment extends Fragment {
     ImageLoader imageLoader;
     DisplayImageOptions options;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private OnFragmentInteractionListener mListener;
 
-    public PictureFragment() {
+    public HomeFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PictureFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static PictureFragment newInstance(String param1, String param2) {
-        PictureFragment fragment = new PictureFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
+    public static HomeFragment newInstance() {
+        HomeFragment fragment = new HomeFragment();
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
 
-        //Initialize
         dataPictureCards = new ArrayList<>();
         dataBlogCards = new ArrayList<>();
         cardsRef = new ArrayList<>();
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).build();
-        ImageLoader.getInstance().init(config);
+        //ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getContext()).build();
+        //ImageLoader.getInstance().init(config);
         imageLoader = ImageLoader.getInstance();
-        requestPictures();
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_picture, container, false);
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
         recyclerView = (RecyclerView) view.findViewById(R.id.list);
+
+        requestPictures();
 
         return view;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -177,64 +127,31 @@ public class PictureFragment extends Fragment {
     }
 
 
+
     // Function to make http request for pictures. The received image urls are added to imageUrls.
     // During the first call the listView is initialized
     private void requestPictures () {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = URL_GET_STRING;
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonObj = new JSONObject(response);
-                            JSONArray arrayJson = jsonObj.getJSONArray("cards");
-                            for (int i=0; i< NO_OF_CARDS; i++) {
-                                JSONObject card = arrayJson.getJSONObject(i);
-                                CardsRef cardRef = new CardsRef();
-
-                                String check = card.getString(("card-type"));
-                                if (card.getString("card-type").equals("image")) {
-                                    cardRef.type = TYPE_PICTURE;
-                                    cardRef.index = dataPictureCards.size();
-                                    cardsRef.add(cardRef);
-                                    JSONObject content = card.getJSONObject("content");
-                                    DataPictureCard temp = new DataPictureCard(content.getString("description"), content.getString("url"),
-                                            card.getInt("likes"), card.getString("location"), "Place holder", card.getString("user-name"),
-                                            card.getString("user-img"));
-                                    dataPictureCards.add(temp);
-                                }
-                                else if (card.getString("card-type").equals("blog")) {
-                                    cardRef.type = TYPE_BLOG;
-                                    cardRef.index = dataBlogCards.size();
-                                    cardsRef.add(cardRef);
-                                    JSONObject content = card.getJSONObject("content");
-                                    DataBlogCard temp = new DataBlogCard(content.getString("url"), content.getString("thumbnail"), content.getString("title"),
-                                            content.getString("abstract"), card.getInt("likes"), card.getString("location"), card.getString("user-name"),
-                                            card.getString("user-img"));
-                                    dataBlogCards.add(temp);
-
-                                }
-
-                            }
-                            if (cardsRef.size() <= NO_OF_CARDS)
-                                initializeListView();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
+        Backend.getInstance().getCards(cardsRef.size(), Backend.getInstance().new GetCardsListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
+            public void onCardsFetched(ArrayList<DataPictureCard> dataPictureCards, ArrayList<DataBlogCard> dataBlogCards, ArrayList<CardsRef> cardsRef) {
+                copyCards(dataPictureCards, dataBlogCards, cardsRef);
+            }
+
+            @Override
+            public void onGetCardsFailed() {
                 Toast.makeText(getActivity().getApplicationContext(), R.string.error_connect_server_failed, Toast.LENGTH_LONG).show();
             }
         });
+    }
 
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+
+    private void copyCards(ArrayList<DataPictureCard> dataPictureCards, ArrayList<DataBlogCard> dataBlogCards, ArrayList<CardsRef> cardsRef) {
+        this.dataPictureCards.addAll(dataPictureCards);
+        this.dataBlogCards.addAll(dataBlogCards);
+        this.cardsRef.addAll(cardsRef);
+
+        if (this.cardsRef.size() <= NO_OF_CARDS)
+            initializeListView();
     }
 
 
@@ -336,24 +253,21 @@ public class PictureFragment extends Fragment {
                 case TYPE_PICTURE:
                     CardPictureViewHolder cardPictureViewHolder = (CardPictureViewHolder) holder;
 
-                    cardPictureViewHolder.like_button.setText("Like");
-                    cardPictureViewHolder.add_to_bl_button.setText("Bucket");
-
                     cardPictureViewHolder.description.setText(dataPictureCards.get(cardsRef.get(position).index).description);
-                    cardPictureViewHolder.likes.setText(dataPictureCards.get(cardsRef.get(position).index).likes + " People Likes this");
+                    //cardPictureViewHolder.likes.setText(String.valueOf(dataPictureCards.get(cardsRef.get(position).index).likes));
                     cardPictureViewHolder.activity.setText(dataPictureCards.get(cardsRef.get(position).index).activity);
                     cardPictureViewHolder.location.setText(dataPictureCards.get(cardsRef.get(position).index).location);
                     ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).link, cardPictureViewHolder.image, options, animateFirstListener);
-                    cardPictureViewHolder.uploader.name.setText(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_name);
-                    ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_pp, cardPictureViewHolder.uploader.pp, options, null);
+                    //cardPictureViewHolder.uploader.name.setText(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_name);
+                    //ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_pp, cardPictureViewHolder.uploader.pp, options, null);
+                    ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_pp, cardPictureViewHolder.uploaderPic, options, null);
 
                     if (dataPictureCards.get(cardsRef.get(position).index).isLiked == false) {
                         cardPictureViewHolder.like_button.setVisibility(View.VISIBLE);
-                        cardPictureViewHolder.add_to_bl_button.setVisibility(View.GONE);
                         cardPictureViewHolder.location.setVisibility(View.GONE);
                         cardPictureViewHolder.addLikeCallback(dataPictureCards.get(cardsRef.get(position).index), this, position);
                     } else {
-                        cardPictureViewHolder.like_button.setVisibility(View.GONE);
+                        cardPictureViewHolder.like_button.setImageResource(R.drawable.ic_liked);
                         cardPictureViewHolder.add_to_bl_button.setVisibility(View.VISIBLE);
                         cardPictureViewHolder.location.setVisibility(View.VISIBLE);
                     }
@@ -364,12 +278,14 @@ public class PictureFragment extends Fragment {
                     ImageLoader.getInstance().displayImage(dataBlogCards.get(cardsRef.get(position).index).thumbnail_url, cardBlogViewHolder.thumbnail, options, null);
                     cardBlogViewHolder.title.setText(dataBlogCards.get(cardsRef.get(position).index).title);
                     cardBlogViewHolder.extract.setText(dataBlogCards.get(cardsRef.get(position).index).extract);
-                    cardBlogViewHolder.like_button.setText("Like");
-                    cardBlogViewHolder.likes.setText(dataBlogCards.get(cardsRef.get(position).index).likes + " People Likes this");
-                    cardBlogViewHolder.activity.setText("Place holder activity");
+                    //cardBlogViewHolder.like_button.setText("Like");
+                    //cardBlogViewHolder.likes.setText(dataBlogCards.get(cardsRef.get(position).index).likes + " People Likes this");
+                    cardBlogViewHolder.activity.setText("Diving");
                     cardBlogViewHolder.location.setText(dataBlogCards.get(cardsRef.get(position).index).location);
-                    cardBlogViewHolder.uploader.name.setText(dataBlogCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_name);
-                    ImageLoader.getInstance().displayImage(dataBlogCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_pp, cardBlogViewHolder.uploader.pp, options, null);
+                    //cardBlogViewHolder.uploader.name.setText(dataBlogCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_name);
+                    //ImageLoader.getInstance().displayImage(dataBlogCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_pp, cardBlogViewHolder.uploader.pp, options, null);
+                    ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_pp, cardBlogViewHolder.uploaderPic, options, null);
+
 
                     cardBlogViewHolder.cardView.setOnClickListener(new View.OnClickListener() {
                         @Override

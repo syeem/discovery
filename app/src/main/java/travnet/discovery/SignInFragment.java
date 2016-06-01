@@ -5,35 +5,34 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link LoginFragment.OnFragmentInteractionListener} interface
+ * {@link SignInFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link LoginFragment#newInstance} factory method to
+ * Use the {@link SignInFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class LoginFragment extends Fragment {
+public class SignInFragment extends Fragment {
 
     private View myFragmentView;
     private CallbackManager callbackManager;
@@ -51,7 +50,7 @@ public class LoginFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private OnLoginListener loginListener;
 
-    public LoginFragment() {
+    public SignInFragment() {
         // Required empty public constructor
     }
 
@@ -61,11 +60,11 @@ public class LoginFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment LoginFragment.
+     * @return A new instance of fragment SignInFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static LoginFragment newInstance(String param1, String param2) {
-        LoginFragment fragment = new LoginFragment();
+    public static SignInFragment newInstance(String param1, String param2) {
+        SignInFragment fragment = new SignInFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -101,10 +100,15 @@ public class LoginFragment extends Fragment {
         loginButton.setReadPermissions("user_friends");
 
 
+
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                loginListener.onLoginSuccessful();
+
+                LoginManager.getInstance().logInWithReadPermissions(getActivity(), Arrays.asList("email"));
+                LoginManager.getInstance().logInWithReadPermissions(getActivity(), Arrays.asList("user_hometown"));
+                LoginManager.getInstance().logInWithReadPermissions(getActivity(), Arrays.asList("user_location"));
+
                 //Request user info
                 GraphRequest request = GraphRequest.newMeRequest(
                         loginResult.getAccessToken(),
@@ -112,19 +116,41 @@ public class LoginFragment extends Fragment {
                             @Override
                             public void onCompleted(JSONObject object, GraphResponse response) {
 
-
                                 // Application code
                                 try {
+                                    String id = object.getString("id");
                                     String email = object.getString("email");
                                     String name = object.getString("name");
-                                } catch (JSONException e) {
-                                    Toast.makeText(getActivity().getApplicationContext(), R.string.error_permission_failed, Toast.LENGTH_LONG).show();
-                                }
+                                    JSONObject locationObj = object.getJSONObject("location");
+                                    String location = locationObj.getString("name");
+                                    JSONObject hometownObj = object.getJSONObject("hometown");
+                                    String hometown = hometownObj.getString("name");
+                                    JSONObject picture = object.getJSONObject("picture");
+                                    String ppURL = picture.getJSONObject("data").getString("url");
 
+                                    User.getInstance().updateUser(name, email, location, hometown, null);
+
+                                    Backend.getInstance().registerNewUser(id, name, email, location, hometown, ppURL, Backend.getInstance().new RegisterNewUserListener() {
+                                        @Override
+                                        public void registerNewUserCompleted() {
+                                            loginListener.onLoginSuccessful();
+                                        }
+
+                                        @Override
+                                        public void registerNewUserFailed() {
+                                            loginListener.onLoginFailed();
+                                        }
+                                    });
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
                             }
+
                         });
                 Bundle parameters = new Bundle();
-                parameters.putString("fields", "email, name");
+                parameters.putString("fields", "id,email,name,hometown,location,picture.width(300).height(300)");
+        //        parameters.putString("fields", "email, name");
                 request.setParameters(parameters);
                 request.executeAsync();
 
@@ -133,12 +159,13 @@ public class LoginFragment extends Fragment {
 
             @Override
             public void onCancel() {
-
+                loginListener.onLoginFailed();
             }
 
             @Override
             public void onError(FacebookException e) {
-                Toast.makeText(getActivity().getApplicationContext(), R.string.error_login_failed, Toast.LENGTH_LONG).show();
+                loginListener.onLoginFailed();
+                e.printStackTrace();
             }
         });
 
@@ -198,6 +225,9 @@ public class LoginFragment extends Fragment {
 
     public interface OnLoginListener {
         void onLoginSuccessful();
+        void onLoginFailed();
     }
+
+
 
 }

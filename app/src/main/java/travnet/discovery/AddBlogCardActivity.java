@@ -107,16 +107,17 @@ public class AddBlogCardActivity extends AppCompatActivity {
 
     public void postBlog() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "http://54.86.18.174/api/postBlog";
+        String url = "http://54.86.18.174/api/registerCard";
         String image = getStringImage(blogThumbnail);
 
         JSONObject blog = new JSONObject();
         try {
-            blog.put("card-type", "blog");
+            blog.put("user_id", User.getInstance().getUserID());
+            blog.put("card_type", "blog");
             blog.put("url", blogURL);
             blog.put("title", blogTitle);
-            blog.put("extract", blogExtract);
-            blog.put("thumbnail", image);
+            //blog.put("extract", blogExtract);
+            //blog.put("thumbnail", image);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -126,7 +127,7 @@ public class AddBlogCardActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(JSONObject response) {
-
+                        returnFromActivity();
                     }
                 }, new Response.ErrorListener() {
 
@@ -137,8 +138,13 @@ public class AddBlogCardActivity extends AppCompatActivity {
                 });
 
         queue.add(jsObjRequest);
+
     }
 
+
+    private void returnFromActivity() {
+        finish();
+    }
 
     public String getStringImage(Bitmap bitmap){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
