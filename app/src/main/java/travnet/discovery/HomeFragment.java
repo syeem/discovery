@@ -295,24 +295,21 @@ public class HomeFragment extends Fragment {
                 case TYPE_PICTURE:
                     CardPictureViewHolder cardPictureViewHolder = (CardPictureViewHolder) holder;
 
-                    cardPictureViewHolder.like_button.setText("Like");
-                    cardPictureViewHolder.add_to_bl_button.setText("Bucket");
-
                     cardPictureViewHolder.description.setText(dataPictureCards.get(cardsRef.get(position).index).description);
-                    cardPictureViewHolder.likes.setText(dataPictureCards.get(cardsRef.get(position).index).likes + " People Likes this");
+                    //cardPictureViewHolder.likes.setText(String.valueOf(dataPictureCards.get(cardsRef.get(position).index).likes));
                     cardPictureViewHolder.activity.setText(dataPictureCards.get(cardsRef.get(position).index).activity);
                     cardPictureViewHolder.location.setText(dataPictureCards.get(cardsRef.get(position).index).location);
                     ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).link, cardPictureViewHolder.image, options, animateFirstListener);
-                    cardPictureViewHolder.uploader.name.setText(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_name);
-                    ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_pp, cardPictureViewHolder.uploader.pp, options, null);
+                    //cardPictureViewHolder.uploader.name.setText(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_name);
+                    //ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_pp, cardPictureViewHolder.uploader.pp, options, null);
+                    ImageLoader.getInstance().displayImage(dataPictureCards.get(cardsRef.get(position).index).dataUploaderBar.uploader_pp, cardPictureViewHolder.uploaderPic, options, null);
 
                     if (dataPictureCards.get(cardsRef.get(position).index).isLiked == false) {
                         cardPictureViewHolder.like_button.setVisibility(View.VISIBLE);
-                        cardPictureViewHolder.add_to_bl_button.setVisibility(View.GONE);
                         cardPictureViewHolder.location.setVisibility(View.GONE);
                         cardPictureViewHolder.addLikeCallback(dataPictureCards.get(cardsRef.get(position).index), this, position);
                     } else {
-                        cardPictureViewHolder.like_button.setVisibility(View.GONE);
+                        cardPictureViewHolder.like_button.setImageResource(R.drawable.ic_liked);
                         cardPictureViewHolder.add_to_bl_button.setVisibility(View.VISIBLE);
                         cardPictureViewHolder.location.setVisibility(View.VISIBLE);
                     }

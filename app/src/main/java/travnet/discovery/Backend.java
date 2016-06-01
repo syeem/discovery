@@ -533,7 +533,7 @@ public class Backend {
                                             cardsRef.add(cardRef);
                                             JSONObject content = card.getJSONObject("content");
                                             DataPictureCard temp = new DataPictureCard(content.getString("description"), content.getString("url"),
-                                                    card.getInt("likes"), card.getString("location"), "Place holder", card.getString("user-name"),
+                                                    card.getInt("likes"), card.getString("location"), "Sight-Seeing", card.getString("user-name"),
                                                     card.getString("user-img"));
                                             dataPictureCards.add(temp);
                                         }
